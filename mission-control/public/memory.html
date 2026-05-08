@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sinkMAIND — Memoria Retroactiva</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: #131a2d;
+      --panel-2: #1a233b;
+      --text: #ecf2ff;
+      --muted: #a8b3cf;
+      --accent: #6ea8fe;
+      --accent2: #a78bfa;
+      --green: #34d399;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --border: #26314f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg, #0b1020 0%, #0f1730 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .shell { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
+
+    /* Header */
+    .hero { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+    .eyebrow { color: var(--accent2); text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; margin-bottom: 6px; }
+    h1 { font-size: 28px; font-weight: 800; }
+    .muted { color: var(--muted); margin-top: 4px; }
+
+    /* Stats bar */
+    .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat-card {
+      background: rgba(19, 26, 45, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+    .stat-card h3 { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .stat-card .value { font-size: 24px; font-weight: 800; }
+
+    /* Search section */
+    .search-section {
+      background: rgba(19, 26, 45, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+    .search-bar { display: flex; gap: 10px; margin-bottom: 14px; }
+    .search-bar input {
+      flex: 1;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-family: inherit;
+    }
+    .search-bar input:focus { outline: none; border-color: var(--accent); }
+    .search-bar input::placeholder { color: var(--muted); }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:disabled { opacity: 0.6; cursor: wait; }
+    .btn-primary { background: var(--accent); color: #081121; }
+    .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-accent2 { background: var(--accent2); color: #0b0d1a; }
+    .btn-sm { padding: 7px 14px; font-size: 13px; }
+
+    /* Filters */
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; align-items: center; }
+    .filters label { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+    .filters select, .filters input[type="date"] {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font: inherit;
+      font-size: 13px;
+    }
+    .filter-toggle { display: flex; gap: 6px; align-items: center; margin-bottom: 14px; }
+    .toggle-btn {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .toggle-btn.active { background: var(--accent); color: #081121; border-color: var(--accent); }
+    .toggle-btn.active.purple { background: var(--accent2); color: #0b0d1a; border-color: var(--accent2); }
+
+    /* Results */
+    .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .results-count { color: var(--muted); font-size: 13px; }
+    .result-card {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .result-card:hover { border-color: var(--accent); }
+    .result-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; font-size: 12px; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tag-app { background: rgba(110,168,254,0.15); color: var(--accent); }
+    .tag-type { background: rgba(167,139,250,0.15); color: var(--accent2); }
+    .tag-level-error { background: rgba(248,113,113,0.15); color: var(--red); }
+    .tag-level-warn { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .tag-level-info { background: rgba(52,211,153,0.15); color: var(--green); }
+    .tag-source { background: rgba(168,179,207,0.1); color: var(--muted); }
+    .result-date { color: var(--muted); }
+    .result-content {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 120px;
+      overflow: hidden;
+      position: relative;
+    }
+    .result-content.expanded { max-height: none; }
+    .result-content::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 40px;
+      background: linear-gradient(transparent, var(--panel-2));
+    }
+    .result-content.expanded::after { display: none; }
+    .result-path { font-size: 11px; color: var(--muted); margin-top: 6px; }
+    .result-score { font-size: 11px; color: var(--green); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* Loading */
+    .loading { text-align: center; padding: 32px; color: var(--muted); }
+    .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--panel); border-radius: 12px; padding: 4px; }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--muted);
+      border: none;
+      background: none;
+    }
+    .tab.active { background: var(--accent); color: #081121; }
+
+    /* Panel for stats / sources / apps */
+    .info-panel {
+      background: rgba(19, 26, 45, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+    }
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .info-item {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .info-item h4 { font-size: 11px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+    .info-item .num { font-size: 22px; font-weight: 700; }
+
+    @media (max-width: 700px) {
+      .hero, .search-bar { flex-direction: column; align-items: stretch; }
+      .filters { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">sinkMAIND</p>
+        <h1>Memoria Retroactiva</h1>
+        <p class="muted">Busca cualquier proceso, chat, log o informe del sistema.</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="loadStats()">Actualizar</button>
+        <button class="btn btn-accent2 btn-sm" onclick="runIndex()">Re-indexar</button>
+      </div>
+    </header>
+
+    <!-- Stats bar -->
+    <section class="stats-bar" id="statsBar">
+      <div class="stat-card"><h3>Total docs</h3><p class="value" id="statTotal">-</p></div>
+      <div class="stat-card"><h3>Logs</h3><p class="value" id="statLogs">-</p></div>
+      <div class="stat-card"><h3>Chats</h3><p class="value" id="statChats">-</p></div>
+      <div class="stat-card"><h3>Code</h3><p class="value" id="statCode">-</p></div>
+      <div class="stat-card"><h3>Docs</h3><p class="value" id="statDocs">-</p></div>
+      <div class="stat-card"><h3>Shell</h3><p class="value" id="statShell">-</p></div>
+    </section>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="search" onclick="switchTab('search')">Buscar</button>
+      <button class="tab" data-tab="stats" onclick="switchTab('stats')">Estadísticas</button>
+      <button class="tab" data-tab="sources" onclick="switchTab('sources')">Fuentes</button>
+    </div>
+
+    <!-- Search tab -->
+    <div id="tabSearch">
+      <section class="search-section">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder='Busca "error", "docker", "deploy"...' autofocus />
+          <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">Buscar</button>
+          <button class="btn btn-accent2" id="semanticBtn" onclick="doSemantic()">Semántica</button>
+        </div>
+
+        <div class="filter-toggle">
+          <button class="toggle-btn active" data-mode="text" onclick="setMode('text')">Textual</button>
+          <button class="toggle-btn purple" data-mode="semantic" onclick="setMode('semantic')">Semántica</button>
+          <button class="toggle-btn purple" data-mode="hybrid" onclick="setMode('hybrid')">Híbrida</button>
+        </div>
+
+        <div class="filters" id="filtersArea">
+          <label>App
+            <select id="filterApp">
+              <option value="">Todas</option>
+              <option>docker</option><option>pm2</option><option>warp</option>
+              <option>claude</option><option>ollama</option><option>nginx</option>
+              <option>openclaw</option><option>sinkia</option><option>cloudflared</option>
+              <option>shell</option><option>hermetic-mobile</option>
+            </select>
+          </label>
+          <label>Tipo
+            <select id="filterType">
+              <option value="">Todos</option>
+              <option>log</option><option>chat</option><option>doc</option>
+              <option>config</option><option>code</option><option>system</option><option>shell</option>
+            </select>
+          </label>
+          <label>Nivel
+            <select id="filterLevel">
+              <option value="">Todos</option>
+              <option>error</option><option>warn</option><option>info</option><option>debug</option>
+            </select>
+          </label>
+          <label>Desde
+            <input type="date" id="filterSince" />
+          </label>
+          <label>Hasta
+            <input type="date" id="filterUntil" />
+          </label>
+          <label>Límite
+            <select id="filterLimit">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <div id="resultsArea"></div>
+    </div>
+
+    <!-- Stats tab -->
+    <div id="tabStats" style="display:none">
+      <section class="info-panel">
+        <h2 style="margin-bottom:16px;">Estadísticas por App</h2>
+        <div class="info-grid" id="statsByApp"></div>
+        <h2 style="margin:24px 0 16px;">Estadísticas por Tipo</h2>
+        <div class="info-grid" id="statsByType"></div>
+      </section>
+    </div>
+
+    <!-- Sources tab -->
+    <div id="tabSources" style="display:none">
+      <section class="info-panel">
+        <h2 style="margin-bottom:16px;">Fuentes indexadas</h2>
+        <div id="sourcesList"></div>
+        <h2 style="margin:24px 0 16px;">Apps detectadas</h2>
+        <div id="appsList"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const API = '/api/memory';
+    let searchMode = 'text';
+
+    // Enter key to search
+    document.getElementById('searchInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    function setMode(mode) {
+      searchMode = mode;
+      document.querySelectorAll('.toggle-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.mode === mode);
+      });
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      document.getElementById('tabSearch').style.display = tab === 'search' ? '' : 'none';
+      document.getElementById('tabStats').style.display = tab === 'stats' ? '' : 'none';
+      document.getElementById('tabSources').style.display = tab === 'sources' ? '' : 'none';
+      if (tab === 'stats') loadStatsDetail();
+      if (tab === 'sources') loadSources();
+    }
+
+    function buildParams() {
+      const p = new URLSearchParams();
+      const q = document.getElementById('searchInput').value.trim();
+      if (q) p.set('query', q);
+      if (searchMode === 'semantic') p.set('semantic', '1');
+      if (searchMode === 'hybrid') p.set('hybrid', '1');
+      const app = document.getElementById('filterApp').value;
+      const type = document.getElementById('filterType').value;
+      const level = document.getElementById('filterLevel').value;
+      const since = document.getElementById('filterSince').value;
+      const until = document.getElementById('filterUntil').value;
+      const limit = document.getElementById('filterLimit').value;
+      if (app) p.set('app', app);
+      if (type) p.set('type', type);
+      if (level) p.set('level', level);
+      if (since) p.set('since', since);
+      if (until) p.set('until', until);
+      if (limit) p.set('limit', limit);
+      return p;
+    }
+
+    async function doSearch() {
+      const area = document.getElementById('resultsArea');
+      const q = document.getElementById('searchInput').value.trim();
+      if (!q && searchMode !== 'semantic') { area.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>Escribe algo para buscar</div>'; return; }
+      area.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px">Buscando...</p></div>';
+      try {
+        const resp = await fetch(`${API}/search?${buildParams()}`);
+        const data = await resp.json();
+        if (!data.results || data.results.length === 0) {
+          area.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No se encontraron resultados</div>';
+          return;
+        }
+        renderResults(data.results);
+      } catch (err) {
+        area.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div>Error: ${err.message}</div>`;
+      }
+    }
+
+    async function doSemantic() {
+      setMode('semantic');
+      doSearch();
+    }
+
+    function renderResults(results) {
+      const area = document.getElementById('resultsArea');
+      let html = `<div class="results-header"><span class="results-count">${results.length} resultados</span></div>`;
+      results.forEach((r, i) => {
+        const date = (r.created_at || r.indexed_at || '').toString().slice(0, 10);
+        const app = r.app || '-';
+        const dtype = r.doc_type || '-';
+        const level = r.level;
+        const source = r.source || '-';
+        const score = r.score ? `<span class="result-score">score: ${r.score}</span>` : '';
+        const content = (r.content || '').replace(/</g, '&lt;');
+
+        const levelTag = level ? `<span class="tag tag-level-${level}">${level}</span>` : '';
+
+        html += `
+          <div class="result-card" onclick="toggleExpand(this)">
+            <div class="result-meta">
+              <span class="result-date">${date}</span>
+              <span class="tag tag-app">${app}</span>
+              <span class="tag tag-type">${dtype}</span>
+              ${levelTag}
+              <span class="tag tag-source">${source}</span>
+              ${score}
+            </div>
+            <div class="result-content" id="content-${i}">${content}</div>
+            <div class="result-path">${r.source_path || ''}</div>
+          </div>`;
+      });
+      area.innerHTML = html;
+    }
+
+    function toggleExpand(card) {
+      const content = card.querySelector('.result-content');
+      content.classList.toggle('expanded');
+    }
+
+    async function loadStats() {
+      try {
+        const [totalRes, typeRes] = await Promise.all([
+          fetch(`${API}/stats`).then(r => r.json()),
+          fetch(`${API}/stats?by=doc_type`).then(r => r.json()),
+        ]);
+        document.getElementById('statTotal').textContent = totalRes[0]?.total ?? '-';
+        const types = {};
+        (typeRes || []).forEach(r => { types[r.key] = r.count; });
+        document.getElementById('statLogs').textContent = types.log || 0;
+        document.getElementById('statChats').textContent = types.chat || 0;
+        document.getElementById('statCode').textContent = types.code || 0;
+        document.getElementById('statDocs').textContent = types.doc || 0;
+        document.getElementById('statShell').textContent = types.shell || 0;
+      } catch (e) { console.error(e); }
+    }
+
+    async function loadStatsDetail() {
+      try {
+        const [appRes, typeRes] = await Promise.all([
+          fetch(`${API}/stats?by=app`).then(r => r.json()),
+          fetch(`${API}/stats?by=doc_type`).then(r => r.json()),
+        ]);
+        document.getElementById('statsByApp').innerHTML = (appRes || []).map(r =>
+          `<div class="info-item"><h4>${r.key || 'N/A'}</h4><p class="num">${r.count}</p></div>`
+        ).join('');
+        document.getElementById('statsByType').innerHTML = (typeRes || []).map(r =>
+          `<div class="info-item"><h4>${r.key || 'N/A'}</h4><p class="num">${r.count}</p></div>`
+        ).join('');
+      } catch (e) { console.error(e); }
+    }
+
+    async function loadSources() {
+      try {
+        const [sourcesRes, appsRes] = await Promise.all([
+          fetch(`${API}/sources`).then(r => r.json()),
+          fetch(`${API}/apps`).then(r => r.json()),
+        ]);
+        document.getElementById('sourcesList').innerHTML = '<div class="info-grid">' +
+          (sourcesRes || []).map(s => `<div class="info-item"><h4>Fuente</h4><p style="font-size:14px;font-weight:600">${s}</p></div>`).join('') +
+          '</div>';
+        document.getElementById('appsList').innerHTML = '<div class="info-grid">' +
+          (appsRes || []).map(a => `<div class="info-item"><h4>App</h4><p style="font-size:14px;font-weight:600">${a}</p></div>`).join('') +
+          '</div>';
+      } catch (e) { console.error(e); }
+    }
+
+    async function runIndex() {
+      if (!confirm('¿Ejecutar re-indexación de todas las fuentes?')) return;
+      try {
+        await fetch(`${API}/index`, { method: 'POST' });
+        alert('Indexación completada');
+        loadStats();
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    // Initial load
+    loadStats();
+  </script>
+</body>
+</html>
