@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mission Control</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Mission Control</p>
+          <h1>API + panel integrado</h1>
+          <p class="muted">
+            Cliente local para LM Studio con fallback opcional a Anthropic cloud.
+          </p>
+        </div>
+        <button id="refreshBtn" class="secondary">Actualizar estado</button>
+      </header>
+
+      <section class="status-grid">
+        <article class="card">
+          <h2>Modo</h2>
+          <p id="providerMode" class="value">-</p>
+        </article>
+        <article class="card">
+          <h2>LM Studio</h2>
+          <p id="lmstudioStatus" class="value">-</p>
+          <p id="lmstudioMeta" class="meta"></p>
+        </article>
+        <article class="card">
+          <h2>Anthropic</h2>
+          <p id="anthropicStatus" class="value">-</p>
+          <p id="anthropicMeta" class="meta"></p>
+        </article>
+        <article class="card card-memory" onclick="window.location.href='/memory'" style="cursor:pointer">
+          <h2>🧠 sinkMAIND</h2>
+          <p id="memoryStatus" class="value" style="color:#a78bfa">-</p>
+          <p id="memoryMeta" class="meta">Memoria retroactiva</p>
+          <div class="memory-bar" id="memoryBar" style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap"></div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Chat de prueba</h2>
+          <label>
+            Proveedor
+            <select id="providerSelect">
+              <option value="auto">auto</option>
+              <option value="lmstudio">lmstudio</option>
+              <option value="anthropic">anthropic</option>
+            </select>
+          </label>
+        </div>
+        <label class="stack">
+          <span>Prompt de sistema</span>
+          <textarea id="systemPromptInput" rows="4"></textarea>
+        </label>
+
+        <textarea id="promptInput" rows="7">Resume el estado actual del proveedor y responde de forma breve.</textarea>
+
+        <div class="actions">
+          <button id="sendBtn">Enviar</button>
+        </div>
+
+        <div class="response-meta">
+          <span id="responseProvider">Proveedor: -</span>
+          <span id="responseModel">Modelo: -</span>
+          <span id="responseFallback">Fallback: -</span>
+        </div>
+
+        <pre id="responseOutput" class="output">Esperando petición...</pre>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+  </html>
