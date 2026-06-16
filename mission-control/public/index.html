@@ -1,80 +1,550 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mission Control</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <main class="shell">
-      <header class="hero">
-        <div>
-          <p class="eyebrow">Mission Control</p>
-          <h1>API + panel integrado</h1>
-          <p class="muted">
-            Cliente local para LM Studio con fallback opcional a Anthropic cloud.
-          </p>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mission Control — SynK-IA</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+<style>
+:root{--bg:#080c18;--s1:#0f1629;--s2:#162040;--s3:#1e2d54;--text:#e8edf5;--muted:#7a85a0;--accent:#5b9aff;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#a78bfa;--pink:#ec4899;--cyan:#22d3ee;--border:#1e2d54}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',SFMono-Regular,Consolas,'Liberation Mono',Menlo,monospace;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.wrap{max-width:1600px;margin:0 auto;padding:12px}
+
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--s1);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+.hdr h1{font-size:1.4em;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr .sub{color:var(--muted);font-size:.75em}
+.hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:4px 10px;font-size:.7em;color:var(--muted);display:flex;align-items:center;gap:4px}
+.chip b{color:var(--text)}
+.chip.alert{border-color:var(--red);color:var(--red)}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;background:var(--s1);border-radius:10px;padding:3px;margin-bottom:12px;border:1px solid var(--border);overflow-x:auto}
+.tab{flex:1;padding:9px 6px;text-align:center;cursor:pointer;border:none;background:none;color:var(--muted);font-weight:600;font-size:.75em;border-radius:8px;transition:all .2s;white-space:nowrap;font-family:inherit}
+.tab:hover{color:var(--text);background:var(--s2)}
+.tab.on{background:var(--s2);color:var(--accent);box-shadow:0 0 0 1px var(--border)}
+.page{display:none}.page.on{display:block}
+
+/* Alerts */
+.alerts{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:none}
+.alerts.show{display:block}
+.alerts h3{color:var(--red);font-size:.85em;margin-bottom:6px}
+.alert-item{font-size:.75em;color:#fca5a5;padding:2px 0}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:16px}
+
+/* Cards */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px;transition:all .2s;position:relative}
+.card:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.card-name{font-weight:700;font-size:.85em}
+.card-type{font-size:.6em;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.badge{font-size:.6em;font-weight:600;padding:2px 6px;border-radius:8px;text-transform:uppercase;letter-spacing:.3px}
+.badge.healthy{background:rgba(16,185,129,.12);color:var(--green)}
+.badge.running{background:rgba(245,158,11,.1);color:var(--yellow)}
+.badge.unhealthy{background:rgba(239,68,68,.12);color:var(--red)}
+.badge.stopped,.badge.offline{background:rgba(100,116,139,.12);color:#94a3b8}
+.badge.unknown{background:rgba(100,116,139,.08);color:var(--muted)}
+.card-info{font-size:.7em;color:var(--muted);margin:3px 0;line-height:1.4}
+.card-info code{background:var(--s2);padding:1px 4px;border-radius:3px;color:var(--accent);font-size:.9em}
+.card-actions{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.btn{padding:4px 10px;border:none;border-radius:6px;cursor:pointer;font-size:.65em;font-weight:600;transition:all .15s;font-family:inherit}
+.btn-p{background:var(--accent);color:#081121}.btn-p:hover{background:#4a8ae6}
+.btn-s{background:var(--s2);color:var(--text);border:1px solid var(--border)}.btn-s:hover{background:var(--s3)}
+.btn-d{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}.btn-d:hover{background:rgba(239,68,68,.18)}
+.btn-w{background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.15)}.btn-w:hover{background:rgba(245,158,11,.18)}
+
+/* Section headers */
+.sec{font-size:.9em;font-weight:700;color:var(--accent);margin:16px 0 10px;display:flex;align-items:center;gap:6px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Ops cards */
+.ops{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.op{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s}
+.op:hover{border-color:var(--accent);transform:translateY(-1px)}
+.op h4{font-size:.8em;color:var(--text);margin-bottom:3px}
+.op p{font-size:.65em;color:var(--muted);margin:0}
+.op code{display:block;margin-top:4px;background:var(--s2);color:var(--green);padding:4px 6px;border-radius:3px;font-size:.7em}
+
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:var(--s1);border:1px solid var(--border);border-radius:14px;width:92%;max-width:900px;max-height:85vh;display:flex;flex-direction:column}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border)}
+.modal-head h3{font-size:1em}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.3em;line-height:1}
+.modal-body{flex:1;overflow:auto;padding:14px 18px}
+.log-pre{background:#060a14;border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:.72em;color:var(--green);white-space:pre-wrap;word-break:break-all;max-height:55vh;overflow:auto;line-height:1.5}
+
+/* Terminal page */
+.term-wrap{background:#060a14;border:1px solid var(--border);border-radius:10px;overflow:hidden;height:calc(100vh - 200px);min-height:400px}
+#terminal{width:100%;height:100%}
+
+/* Toast */
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--green);color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;font-size:.8em;transition:transform .3s;z-index:2000}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+/* Loading */
+.loading{text-align:center;padding:30px;color:var(--muted);font-size:.8em}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Status dot */
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot.green{background:var(--green);box-shadow:0 0 6px var(--green)}
+.dot.yellow{background:var(--yellow);box-shadow:0 0 6px var(--yellow)}
+.dot.red{background:var(--red);box-shadow:0 0 6px var(--red)}
+.dot.gray{background:#475569}
+
+/* Responsive */
+@media(max-width:700px){
+  .hdr{flex-direction:column;align-items:flex-start}
+  .grid{grid-template-columns:1fr}
+  .ops{grid-template-columns:1fr 1fr}
+  .tabs{flex-wrap:nowrap;overflow-x:auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div>
+      <h1>⚡ Mission Control</h1>
+      <p class="sub">SynK-IA — Centro de control del ecosistema</p>
+    </div>
+    <div class="hdr-right" id="sys-chips"></div>
+  </div>
+
+  <div class="alerts" id="alerts">
+    <h3>🚨 Alertas</h3>
+    <div id="alert-list"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="showTab('dash',this)">🏠 Dashboard</button>
+    <button class="tab" onclick="showTab('docker',this)">🐳 Docker</button>
+    <button class="tab" onclick="showTab('agents',this)">🤖 Agentes</button>
+    <button class="tab" onclick="showTab('terminal',this)">🖥️ Terminal</button>
+    <button class="tab" onclick="showTab('ollama',this)">🦙 Ollama</button>
+    <button class="tab" onclick="showTab('network',this)">🌐 Red</button>
+    <button class="tab" onclick="showTab('repair',this)">🔧 Reparación</button>
+    <button class="tab" onclick="window.open('http://'+location.hostname+':3030','_blank')" style="margin-left:auto;background:var(--s2);color:var(--green)">🧠 5 Cerebros</button>
+    <button class="tab" onclick="window.open('http://'+location.hostname+':3001','_blank')" style="background:var(--s2);color:var(--purple)">💼 SynK-IA App</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="p-dash" class="page on">
+    <div class="sec">📊 Resumen del sistema</div>
+    <div class="grid" id="overview-grid"><div class="loading"><span class="spin"></span> Cargando...</div></div>
+    <div class="sec">🐳 Contenedores Docker</div>
+    <div class="grid" id="docker-grid"><div class="loading"><span class="spin"></span></div></div>
+    <div class="sec">💚 Procesos PM2</div>
+    <div class="grid" id="pm2-grid"><div class="loading"><span class="spin"></span></div></div>
+    <div class="sec">🔧 Servicios detectados</div>
+    <div class="grid" id="services-grid"><div class="loading"><span class="spin"></span></div></div>
+  </div>
+
+  <!-- DOCKER -->
+  <div id="p-docker" class="page">
+    <div class="sec">🐳 Contenedores Docker</div>
+    <div class="ops" style="margin-bottom:16px">
+      <div class="op" onclick="dockerAll('restart')"><h4>🔄 Reiniciar todos</h4><code>docker restart $(docker ps -q)</code></div>
+      <div class="op" onclick="dockerAll('stop')"><h4>🛑 Parar todos</h4><code>docker stop $(docker ps -q)</code></div>
+      <div class="op" onclick="dockerAll('prune')"><h4>🧹 Limpiar (prune)</h4><code>docker system prune -f</code></div>
+      <div class="op" onclick="composeUp()"><h4>⬆️ Compose Up</h4><code>docker compose up -d</code></div>
+      <div class="op" onclick="composeDown()"><h4>⬇️ Compose Down</h4><code>docker compose down</code></div>
+    </div>
+    <div class="grid" id="docker-full-grid"><div class="loading"><span class="spin"></span></div></div>
+  </div>
+
+  <!-- AGENTS -->
+  <div id="p-agents" class="page">
+    <div class="sec">🤖 Agentes OpenClaw</div>
+    <div class="grid" id="agents-grid"><div class="loading"><span class="spin"></span></div></div>
+    <div class="sec">🛠️ Herramientas de desarrollo</div>
+    <div class="ops">
+      <div class="op" onclick="copy('claude')"><h4>🤖 Claude Code</h4><p>CLI interactivo</p><code>claude</code></div>
+      <div class="op" onclick="copy('aider --model ollama_chat/gemma4:e4b --no-auto-commits')"><h4>🛠️ Aider + Gemma4</h4><p>Pair programming local</p><code>aider --model gemma4:e4b</code></div>
+      <div class="op" onclick="copy('aider --model ollama_chat/qwen3.5:latest --no-auto-commits')"><h4>🧠 Aider + Qwen3.5</h4><p>Razonamiento avanzado</p><code>aider --model qwen3.5</code></div>
+      <div class="op" onclick="copy('opencode')"><h4>💻 OpenCode</h4><p>Agente de código</p><code>opencode</code></div>
+      <div class="op" onclick="copy('codex')"><h4>📝 Codex CLI</h4><p>OpenAI Codex</p><code>codex</code></div>
+    </div>
+    <div class="sec">📋 Comandos rápidos</div>
+    <div class="ops">
+      <div class="op" onclick="copy('openclaw status')"><h4>📊 Estado OpenClaw</h4><code>openclaw status</code></div>
+      <div class="op" onclick="copy('openclaw gateway restart')"><h4>🔄 Restart Gateway</h4><code>openclaw gateway restart</code></div>
+      <div class="op" onclick="copy('ollama list')"><h4>🦙 Modelos Ollama</h4><code>ollama list</code></div>
+      <div class="op" onclick="copy('pm2 list')"><h4>💚 Estado PM2</h4><code>pm2 list</code></div>
+    </div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div id="p-terminal" class="page">
+    <div class="sec">🖥️ Terminal Web</div>
+    <div class="term-wrap"><div id="terminal"></div></div>
+  </div>
+
+  <!-- OLLAMA -->
+  <div id="p-ollama" class="page">
+    <div class="sec">🦙 Modelos Ollama</div>
+    <div class="grid" id="ollama-grid"><div class="loading"><span class="spin"></span></div></div>
+    <div class="sec">⚡ Acciones</div>
+    <div class="ops">
+      <div class="op" onclick="ollamaAction('pull','qwen2.5-coder:14b')"><h4>📥 Pull Qwen2.5-Coder</h4><code>ollama pull qwen2.5-coder:14b</code></div>
+      <div class="op" onclick="ollamaAction('pull','llama3.3:70b')"><h4>📥 Pull Llama 3.3 70B</h4><code>ollama pull llama3.3:70b</code></div>
+      <div class="op" onclick="ollamaAction('rm','phi4-mini:latest')"><h4>🗑️ Eliminar Phi4-Mini</h4><code>ollama rm phi4-mini:latest</code></div>
+    </div>
+  </div>
+
+  <!-- NETWORK -->
+  <div id="p-network" class="page">
+    <div class="sec">🌐 Tailscale</div>
+    <div id="tailscale-status" style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:.75em;white-space:pre-wrap;max-height:200px;overflow:auto;margin-bottom:16px">Cargando...</div>
+    <div class="ops" style="margin-bottom:16px">
+      <div class="op" onclick="tailscaleAction('up')"><h4>🟢 Tailscale Up</h4><code>tailscale up</code></div>
+      <div class="op" onclick="tailscaleAction('down')"><h4>🔴 Tailscale Down</h4><code>tailscale down</code></div>
+      <div class="op" onclick="tailscaleAction('status')"><h4>📊 Ver estado</h4><code>tailscale status</code></div>
+    </div>
+    <div class="sec">☁️ Cloudflare Tunnel</div>
+    <div id="cloudflare-status" style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:.75em;white-space:pre-wrap;max-height:200px;overflow:auto;margin-bottom:16px">Cargando...</div>
+    <div class="sec">🔌 Puertos en uso</div>
+    <div id="ports-list" style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:.72em;white-space:pre-wrap;max-height:300px;overflow:auto">Cargando...</div>
+  </div>
+
+  <!-- REPAIR -->
+  <div id="p-repair" class="page">
+    <div class="sec">🔧 Botiquín de reparación</div>
+    <div class="ops" id="repair-ops"><div class="loading"><span class="spin"></span></div></div>
+    <div class="sec">📋 Log de acciones</div>
+    <div id="repair-log" style="background:#060a14;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:.72em;color:var(--muted);white-space:pre-wrap;min-height:100px;max-height:300px;overflow:auto;line-height:1.6">Sin acciones ejecutadas aún.</div>
+  </div>
+</div>
+
+<!-- Log Modal -->
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modal-title">Logs</h3><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body"><pre class="log-pre" id="modal-log">Cargando...</pre></div>
+  </div>
+</div>
+<div class="toast" id="toast">✅ Copiado</div>
+
+<script>
+// ── State ──
+let servicesData = null;
+let term = null;
+let ws = null;
+
+// ── Tab nav ──
+function showTab(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('p-' + id).classList.add('on');
+  if (btn) btn.classList.add('on');
+  if (id === 'terminal' && !term) initTerminal();
+  if (id === 'network') loadNetwork();
+}
+
+// ── Toast + Copy ──
+function copy(t) {
+  navigator.clipboard.writeText(t).catch(() => {
+    const ta = document.createElement('textarea'); ta.value = t;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  const toast = document.getElementById('toast');
+  toast.classList.add('on');
+  setTimeout(() => toast.classList.remove('on'), 1800);
+}
+
+// ── Modal ──
+function closeModal() { document.getElementById('modal').classList.remove('on'); }
+async function showLogs(title, url) {
+  document.getElementById('modal').classList.add('on');
+  document.getElementById('modal-title').textContent = '📋 ' + title;
+  document.getElementById('modal-log').textContent = 'Cargando...';
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    document.getElementById('modal-log').textContent = d.logs || d.output || JSON.stringify(d, null, 2);
+  } catch (e) { document.getElementById('modal-log').textContent = 'Error: ' + e.message; }
+}
+
+// ── API calls ──
+async function api(url, opts = {}) {
+  const r = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts });
+  return r.json();
+}
+
+// ── Render ──
+function healthBadge(h) {
+  return `<span class="badge ${h}">${h}</span>`;
+}
+
+function renderDockerCard(s) {
+  const ports = s.ports?.split(',').map(p => `<code>${p.trim()}</code>`).join(' ') || '';
+  return `<div class="card">
+    <div class="card-top"><div><div class="card-name">🐳 ${s.name}</div><div class="card-type">${s.image?.split('/').pop() || 'docker'}</div></div>${healthBadge(s.health)}</div>
+    ${ports ? `<div class="card-info">Puertos: ${ports}</div>` : ''}
+    <div class="card-info" style="font-size:.65em">${s.status}</div>
+    <div class="card-actions">
+      <button class="btn btn-s" onclick="showLogs('${s.name}','/api/docker/${s.id}/logs?lines=80')">📋 Logs</button>
+      <button class="btn btn-w" onclick="dockerAction('${s.id}','restart')">🔄 Restart</button>
+      <button class="btn btn-d" onclick="dockerAction('${s.id}','stop')">🛑 Stop</button>
+    </div></div>`;
+}
+
+function renderPM2Card(s) {
+  const mem = s.memory ? (s.memory / 1048576).toFixed(1) + ' MB' : '-';
+  return `<div class="card">
+    <div class="card-top"><div><div class="card-name">💚 ${s.name}</div><div class="card-type">pm2 · PID ${s.pid}</div></div>${healthBadge(s.health)}</div>
+    <div class="card-info">RAM: <code>${mem}</code> · CPU: <code>${s.cpu || 0}%</code> · Restarts: ${s.restarts || 0}</div>
+    <div class="card-actions">
+      <button class="btn btn-s" onclick="showLogs('${s.name}','/api/pm2/${s.name}/logs?lines=80')">📋 Logs</button>
+      <button class="btn btn-w" onclick="pm2Action('${s.name}','restart')">🔄 Restart</button>
+      <button class="btn btn-d" onclick="pm2Action('${s.name}','stop')">🛑 Stop</button>
+    </div></div>`;
+}
+
+function renderServiceCard(s) {
+  return `<div class="card">
+    <div class="card-top"><div><div class="card-name">${s.icon || '🔧'} ${s.name}</div><div class="card-type">puerto ${s.port}</div></div>${healthBadge(s.health)}</div>
+    <div class="card-actions">
+      <a class="btn btn-p" href="${s.url}" target="_blank" style="text-decoration:none;color:#081121">Abrir ↗</a>
+    </div></div>`;
+}
+
+function renderAgentCard(a) {
+  const colors = { main: '#5b9aff', brain: '#a78bfa', coder: '#10b981', docs: '#f59e0b', monitor: '#ef4444' };
+  const c = colors[a.id] || '#5b9aff';
+  return `<div class="card" style="border-left:3px solid ${c}">
+    <div class="card-top"><div><div class="card-name">${a.name}</div><div class="card-type">openclaw agent</div></div><span class="badge healthy">active</span></div>
+    <div class="card-info">Modelo: <code>${a.model}</code></div>
+    <div class="card-info">Workspace: <code>${(a.workspace||'').split('/').pop()}</code></div>
+    <div class="card-actions">
+      <button class="btn btn-p" onclick="copy('openclaw chat ${a.id}')">💬 Chat</button>
+      <button class="btn btn-s" onclick="agentAction('restart','${a.id}')">🔄 Restart</button>
+    </div></div>`;
+}
+
+function renderOllamaCard(m) {
+  return `<div class="card">
+    <div class="card-top"><div><div class="card-name">🦙 ${m.name}</div><div class="card-type">${m.size || '—'}</div></div><span class="badge healthy">loaded</span></div>
+    <div class="card-info">Modificado: ${m.modified || '—'}</div>
+    <div class="card-actions">
+      <button class="btn btn-d" onclick="ollamaAction('rm','${m.name}')">🗑️ Eliminar</button>
+    </div></div>`;
+}
+
+// ── Actions ──
+async function dockerAction(id, action) {
+  const d = await api(`/api/docker/${id}/${action}`, { method: 'POST' });
+  addRepairLog(`Docker ${action} ${id}: ${d.ok ? 'OK' : d.error}`);
+  loadServices();
+}
+
+async function dockerAll(action) {
+  if (!confirm(`¿${action} todos los contenedores?`)) return;
+  const d = await api(`/api/repair/restart-all-docker`, { method: 'POST' });
+  addRepairLog(`Docker ${action} todos: ${d.ok ? 'OK' : d.error}`);
+  loadServices();
+}
+
+async function composeUp() {
+  const d = await api('/api/repair/docker-compose-up', { method: 'POST' });
+  addRepairLog(`Compose Up: ${d.ok ? 'OK' : d.error}`);
+  loadServices();
+}
+
+async function composeDown() {
+  if (!confirm('¿Parar todos los servicios Docker Compose?')) return;
+  const d = await api('/api/repair/docker-compose-down', { method: 'POST' });
+  addRepairLog(`Compose Down: ${d.ok ? 'OK' : d.error}`);
+  loadServices();
+}
+
+async function pm2Action(name, action) {
+  const d = await api(`/api/pm2/${name}/${action}`, { method: 'POST' });
+  addRepairLog(`PM2 ${action} ${name}: ${d.ok ? 'OK' : d.error}`);
+  loadServices();
+}
+
+async function agentAction(action, id) {
+  const d = await api(`/api/openclaw/${action}/${id}`, { method: 'POST' });
+  addRepairLog(`OpenClaw ${action} ${id}: ${d.ok ? 'OK' : d.error}`);
+  loadServices();
+}
+
+async function ollamaAction(action, model) {
+  const d = await api(`/api/ollama/${action}/${model}`, { method: 'POST' });
+  addRepairLog(`Ollama ${action} ${model}: ${d.ok ? 'OK' : d.error}`);
+  loadServices();
+}
+
+async function tailscaleAction(action) {
+  const d = await api(`/api/tailscale/${action}`, { method: 'POST' });
+  addRepairLog(`Tailscale ${action}: ${d.ok ? 'OK' : d.error}`);
+  loadNetwork();
+}
+
+async function runRepair(action) {
+  const d = await api(`/api/repair/${action}`, { method: 'POST' });
+  addRepairLog(`${action}: ${d.ok ? 'OK — ' + (d.output||'') : d.error}`);
+  loadServices();
+}
+async function releaseRAM() {
+  if (!confirm('¿Liberar caché de RAM? macOS puede pedir contraseña sudo.')) return;
+  const d = await api('/api/repair/release-ram', { method: 'POST' });
+  addRepairLog(`Liberar RAM: ${d.ok ? 'OK — ' + (d.output||'') : d.error}`);
+  setTimeout(loadServices, 2000);
+}
+
+function addRepairLog(msg) {
+  const el = document.getElementById('repair-log');
+  const time = new Date().toLocaleTimeString('es-ES');
+  el.textContent = `[${time}] ${msg}\n` + el.textContent;
+}
+
+// ── Load data ──
+async function loadServices() {
+  try {
+    const d = await api('/api/services');
+    servicesData = d;
+
+    // Overview
+    const m = d.metrics;
+    const diskUsagePercent = parseInt(m.disk?.pct || '0');
+    const ramUsagePercent = (m.ram?.usedGB / m.ram?.totalGB * 100).toFixed(0);
+    document.getElementById('overview-grid').innerHTML = `
+      <div class="card">
+        <div class="card-name">💾 Disco</div>
+        <div class="card-info">Usado: <b>${m.disk?.used}</b> / ${m.disk?.total}</div>
+        <div style="width:100%;height:4px;background:var(--s2);border-radius:2px;margin:6px 0;overflow:hidden"><div style="height:100%;width:${diskUsagePercent}%;background:${diskUsagePercent > 80 ? 'var(--red)' : 'var(--green)'}"></div></div>
+        <div class="card-info">Libre: <b style="color:var(--green)">${m.disk?.free}</b> (${100-diskUsagePercent}%)</div>
+        <div class="card-actions">
+          <button class="btn btn-s" onclick="runRepair('docker-prune')">🧹 Limpiar</button>
         </div>
-        <button id="refreshBtn" class="secondary">Actualizar estado</button>
-      </header>
-
-      <section class="status-grid">
-        <article class="card">
-          <h2>Modo</h2>
-          <p id="providerMode" class="value">-</p>
-        </article>
-        <article class="card">
-          <h2>LM Studio</h2>
-          <p id="lmstudioStatus" class="value">-</p>
-          <p id="lmstudioMeta" class="meta"></p>
-        </article>
-        <article class="card">
-          <h2>Anthropic</h2>
-          <p id="anthropicStatus" class="value">-</p>
-          <p id="anthropicMeta" class="meta"></p>
-        </article>
-        <article class="card card-memory" onclick="window.location.href='/memory'" style="cursor:pointer">
-          <h2>🧠 sinkMAIND</h2>
-          <p id="memoryStatus" class="value" style="color:#a78bfa">-</p>
-          <p id="memoryMeta" class="meta">Memoria retroactiva</p>
-          <div class="memory-bar" id="memoryBar" style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap"></div>
-        </article>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2>Chat de prueba</h2>
-          <label>
-            Proveedor
-            <select id="providerSelect">
-              <option value="auto">auto</option>
-              <option value="lmstudio">lmstudio</option>
-              <option value="anthropic">anthropic</option>
-            </select>
-          </label>
+      </div>
+      <div class="card">
+        <div class="card-name">🧠 RAM</div>
+        <div class="card-info">Usado: <b>${m.ram?.usedGB} GB</b> / ${m.ram?.totalGB} GB</div>
+        <div style="width:100%;height:4px;background:var(--s2);border-radius:2px;margin:6px 0;overflow:hidden"><div style="height:100%;width:${ramUsagePercent}%;background:${ramUsagePercent > 80 ? 'var(--red)' : 'var(--green)'}"></div></div>
+        <div class="card-info">Libre: <b style="color:var(--green)">${m.ram?.freeGB} GB</b> (${100-ramUsagePercent}%)</div>
+        <div class="card-actions">
+          <button class="btn btn-w" onclick="releaseRAM()">⚡ Liberar cache</button>
         </div>
-        <label class="stack">
-          <span>Prompt de sistema</span>
-          <textarea id="systemPromptInput" rows="4"></textarea>
-        </label>
+      </div>
+      <div class="card">
+        <div class="card-name">⚡ Load</div>
+        <div class="card-info">1m: <b>${m.load?.['1m']}</b></div>
+        <div class="card-info">${m.cpu || 'Apple Silicon'}</div>
+      </div>
+      <div class="card">
+        <div class="card-name">📊 Servicios</div>
+        <div class="card-info">Docker: <b>${d.docker?.length}</b> · PM2: <b>${d.pm2?.length}</b></div>
+        <div class="card-info">Agentes: <b>${d.agents?.length}</b> · Red: <b>${d.custom?.length}</b></div>
+        <div class="card-info" style="color:var(--red);font-weight:bold">⚠️ ${d.alerts?.length || 0} alertas</div>
+      </div>
+    `;
 
-        <textarea id="promptInput" rows="7">Resume el estado actual del proveedor y responde de forma breve.</textarea>
+    document.getElementById('docker-grid').innerHTML = d.docker?.length ? d.docker.map(renderDockerCard).join('') : '<div style="color:var(--muted);padding:10px;font-size:.75em">Sin contenedores</div>';
+    document.getElementById('docker-full-grid').innerHTML = d.docker?.length ? d.docker.map(renderDockerCard).join('') : '<div style="color:var(--muted);padding:10px;font-size:.75em">Sin contenedores</div>';
+    document.getElementById('pm2-grid').innerHTML = d.pm2?.length ? d.pm2.map(renderPM2Card).join('') : '<div style="color:var(--muted);padding:10px;font-size:.75em">Sin procesos PM2</div>';
+    document.getElementById('services-grid').innerHTML = d.custom?.length ? d.custom.map(renderServiceCard).join('') : '';
+    document.getElementById('agents-grid').innerHTML = d.agents?.length ? d.agents.map(renderAgentCard).join('') : '<div style="color:var(--muted);padding:10px;font-size:.75em">Sin agentes</div>';
+    document.getElementById('ollama-grid').innerHTML = d.ollama?.length ? d.ollama.map(renderOllamaCard).join('') : '<div style="color:var(--muted);padding:10px;font-size:.75em">Sin modelos</div>';
 
-        <div class="actions">
-          <button id="sendBtn">Enviar</button>
-        </div>
+    // Alerts
+    const alertEl = document.getElementById('alerts');
+    const alertList = document.getElementById('alert-list');
+    if (d.alerts?.length) {
+      alertEl.classList.add('show');
+      alertList.innerHTML = d.alerts.map(a => `<div class="alert-item">⚠️ <b>${a.name}</b> — ${a.health}</div>`).join('');
+    } else {
+      alertEl.classList.remove('show');
+    }
 
-        <div class="response-meta">
-          <span id="responseProvider">Proveedor: -</span>
-          <span id="responseModel">Modelo: -</span>
-          <span id="responseFallback">Fallback: -</span>
-        </div>
+    // Chips
+    document.getElementById('sys-chips').innerHTML = `
+      <div class="chip">🐳 <b>${d.docker?.length}</b></div>
+      <div class="chip">💚 <b>${d.pm2?.length}</b></div>
+      <div class="chip">🤖 <b>${d.agents?.length}</b></div>
+      <div class="chip${d.alerts?.length ? ' alert' : ''}">⚠️ <b>${d.alerts?.length || 0}</b></div>
+    `;
+  } catch (e) {
+    console.error('loadServices error:', e);
+  }
+}
 
-        <pre id="responseOutput" class="output">Esperando petición...</pre>
-      </section>
-    </main>
+async function loadNetwork() {
+  try {
+    const [ts, cf, ports] = await Promise.all([
+      api('/api/tailscale/status'),
+      api('/api/cloudflare/status'),
+      api('/api/system')
+    ]);
+    document.getElementById('tailscale-status').textContent = ts.status || 'No disponible';
+    document.getElementById('cloudflare-status').textContent = cf.status || 'No disponible';
+    // Ports
+    const { stdout } = await fetch('/api/system').then(r => r.text());
+  } catch (e) {
+    document.getElementById('tailscale-status').textContent = 'Error: ' + e.message;
+  }
+}
 
-    <script type="module" src="/app.js"></script>
-  </body>
-  </html>
+// ── Terminal ──
+function initTerminal() {
+  if (term) return;
+  term = new Terminal({
+    cursorBlink: true,
+    fontSize: 13,
+    fontFamily: 'SF Mono, SFMono-Regular, Consolas, monospace',
+    theme: { background: '#060a14', foreground: '#e8edf5', cursor: '#5b9aff', selectionBackground: '#1e2d54' },
+    allowProposedApi: true
+  });
+  const fitAddon = new FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
+  term.open(document.getElementById('terminal'));
+  fitAddon.fit();
+
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${location.host}/ws/terminal`);
+
+  ws.onopen = () => { term.writeln('\r\n\x1b[32m✓ Conectado a terminal\x1b[0m\r\n'); };
+  ws.onmessage = (e) => {
+    const d = JSON.parse(e.data);
+    if (d.type === 'output') term.write(d.data);
+    if (d.type === 'exit') term.writeln('\r\n\x1b[31m✗ Sesión terminada\x1b[0m');
+  };
+  ws.onclose = () => { term.writeln('\r\n\x1b[33m⚠ Conexión cerrada\x1b[0m'); };
+
+  term.onData(data => { if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'input', data })); });
+
+  window.addEventListener('resize', () => fitAddon.fit());
+}
+
+// ── Repair actions ──
+async function loadRepairActions() {
+  try {
+    const d = await api('/api/repair/actions');
+    document.getElementById('repair-ops').innerHTML = d.actions.map(a => `
+      <div class="op" onclick="runRepair('${a.id}')">
+        <h4>${a.icon} ${a.name}</h4>
+        <code>${a.id}</code>
+      </div>
+    `).join('');
+  } catch (e) {}
+}
+
+// ── Init ──
+loadServices();
+loadRepairActions();
+setInterval(loadServices, 15000);
+</script>
+</body>
+</html>

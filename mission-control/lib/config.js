@@ -75,9 +75,9 @@ export function getRuntimeConfig() {
       port: Number.parseInt(process.env.APP_PORT ?? '3030', 10),
     },
     lmstudio: {
-      baseURL: normalize(process.env.LMSTUDIO_BASE_URL) ?? 'http://10.0.1.13:1234/v1',
-      model: normalize(process.env.LMSTUDIO_MODEL) ?? 'medina-qwen3-14b-openclaw',
-      apiKey: normalize(process.env.LMSTUDIO_API_KEY) ?? 'lm-studio',
+      baseURL: normalize(process.env.LMSTUDIO_BASE_URL) ?? 'http://127.0.0.1:1234/v1',
+      model: normalize(process.env.LMSTUDIO_MODEL) ?? 'negentropy/ring-2.6-1t',
+      apiKey: normalize(process.env.LMSTUDIO_API_KEY) ?? '',
     },
     anthropic: {
       apiKey: anthropicCredentials.apiKey,

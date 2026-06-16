@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ollama",
+    "name": "Ollama",
+    "icon": "🦙",
+    "healthUrl": "http://localhost:11434",
+    "url": "http://localhost:11434",
+    "description": "Motor de modelos IA local"
+  },
+  {
+    "id": "lmstudio",
+    "name": "LM Studio",
+    "icon": "🧪",
+    "healthUrl": "http://10.0.1.13:1234/v1/models",
+    "url": "http://10.0.1.13:1234",
+    "description": "Servidor LM Studio (red local)"
+  },
+  {
+    "id": "tailscale",
+    "name": "Tailscale VPN",
+    "icon": "🔗",
+    "checkCmd": "tailscale status",
+    "url": "https://admin.tailscale.com",
+    "description": "Red privada Tailscale"
+  },
+  {
+    "id": "sinkmind",
+    "name": "sinkMAIND",
+    "icon": "🧠",
+    "checkCmd": "/Users/davidnows/sinkia-memory/memory stats",
+    "url": "/memory",
+    "description": "Base de datos de memoria retroactiva"
+  },
+  {
+    "id": "cloudflare-tunnel",
+    "name": "Cloudflare Tunnel",
+    "icon": "☁️",
+    "checkCmd": "pgrep -f cloudflared",
+    "url": "https://dash.cloudflare.com",
+    "description": "Túnel público a sinkialabs.com"
+  }
+]
