@@ -239,6 +239,75 @@ services:
     description: "Admin panel for system monitoring and control"
     role: "system-management"
 
+  # Heaven Hub — Knowledge Base & Content Management
+  heaven-hub:
+    name: "Heaven Hub"
+    type: "knowledge-hub"
+    port: 8765
+    protocol: "http"
+    host: "localhost"
+    baseUrl: "http://localhost:8765"
+    docker:
+      service: "sinkia-heaven-hub"
+      network: "synkia-os-net"
+      image: "heaven-hub-fixed:latest"
+    critical: false
+    autoRestart: true
+    healthCheck: "/health"
+    description: "Heaven Hub for knowledge base management and content aggregation"
+    role: "knowledge-management"
+    capabilities:
+      - "content-management"
+      - "knowledge-base"
+      - "search-integration"
+      - "api-aggregation"
+
+  # Heaven Search Platform — Advanced Search Engine
+  heaven-search:
+    name: "Heaven Search Platform"
+    type: "search-engine"
+    port: 8766
+    protocol: "http"
+    host: "localhost"
+    baseUrl: "http://localhost:8766"
+    docker:
+      service: "sinkia-heaven-search"
+      network: "synkia-os-net"
+      image: "heaven-search-platform:latest"
+    critical: false
+    autoRestart: true
+    healthCheck: "/health"
+    description: "Advanced search platform for cross-ecosystem searching"
+    role: "search-and-discovery"
+    capabilities:
+      - "full-text-search"
+      - "vector-search"
+      - "semantic-search"
+      - "multi-source-indexing"
+
+  # Heaven Ecosystem Agent — Autonomous Agent
+  heaven-agent:
+    name: "Heaven Ecosystem Agent"
+    type: "autonomous-agent"
+    port: 8767
+    protocol: "http"
+    host: "localhost"
+    baseUrl: "http://localhost:8767"
+    docker:
+      service: "sinkia-heaven-agent"
+      network: "synkia-os-net"
+      image: "heaven-ecosystem-agent:latest"
+    critical: false
+    autoRestart: true
+    healthCheck: "/health"
+    description: "Heaven autonomous agent for ecosystem tasks and automation"
+    role: "ecosystem-agent"
+    capabilities:
+      - "task-automation"
+      - "knowledge-synthesis"
+      - "cross-service-orchestration"
+      - "intelligent-routing"
+
   # Odysseus Master Orchestrator
   odysseus:
     name: "Odysseus"
@@ -254,7 +323,7 @@ services:
     critical: true
     autoRestart: true
     healthCheck: "/health"
-    description: "Master orchestrator for coordinating all SynK-IA services (Odysseus journey visualization)"
+    description: "Master orchestrator for coordinating all SynK-IA and Heaven services (Odysseus journey visualization)"
     role: "master-orchestration"
     capabilities:
       - "service-coordination"
@@ -276,6 +345,9 @@ services:
       - "ruflow-frontend"
       - "hermes"
       - "mission-control"
+      - "heaven-hub"
+      - "heaven-search"
+      - "heaven-agent"
 
 # ───────────────────────────────────────────────────────────────────────────────
 # MODEL SELECTION POLICY — Intelligent routing by task type
