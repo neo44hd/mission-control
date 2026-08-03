@@ -1,0 +1,668 @@
+{
+  "version": "1.0",
+  "createdAt": "2026-08-03T20:00:00Z",
+  "lastUpdated": "2026-08-03T20:00:00Z",
+  "ecosystem": {
+    "name": "SynK-IA Unified Ecosystem",
+    "status": "operational",
+    "connectedServices": 10,
+    "criticalServices": 4
+  },
+  "learning": {
+    "modelPreferences": {
+      "coding": "local-claude-code",
+      "research": "local-reason",
+      "fast": "local-fast",
+      "creative": "local-big",
+      "jobMatching": "ruflow-semantic-scorer"
+    },
+    "taskHistory": [],
+    "successRate": 0.95,
+    "averageLatency": 250,
+    "lastOptimization": "2026-08-03T20:00:00Z"
+  },
+  "routing": {
+    "hub-ai-local": 1,
+    "openclaw": 0,
+    "sinkia-ops": 1,
+    "openwebui": 0,
+    "n8n": 0,
+    "ruflow-backend": 0,
+    "hermes": 0
+  },
+  "performance": {
+    "sinkia-ops": {
+      "executions": 0,
+      "successes": 0,
+      "avgDuration": 0,
+      "errors": []
+    },
+    "openclaw": {
+      "executions": 0,
+      "successes": 0,
+      "avgDuration": 0,
+      "errors": []
+    },
+    "ruflow-backend": {
+      "executions": 0,
+      "successes": 0,
+      "avgDuration": 0,
+      "errors": []
+    }
+  },
+  "costs": {
+    "local-claude-code": {
+      "totalInputTokens": 0,
+      "totalOutputTokens": 0,
+      "estimatedCost": 0,
+      "executions": 0,
+      "successes": 0
+    },
+    "local-coder-ollama": {
+      "totalInputTokens": 0,
+      "totalOutputTokens": 0,
+      "estimatedCost": 0,
+      "executions": 0,
+      "successes": 0
+    },
+    "local-fast": {
+      "totalInputTokens": 0,
+      "totalOutputTokens": 0,
+      "estimatedCost": 0,
+      "executions": 0,
+      "successes": 0
+    }
+  },
+  "discoveries": [
+    {
+      "name": "BerriAI/litellm",
+      "description": "The fastest, litest AI Gateway. Rust core with Python SDK. Call 100+ LLM APIs in OpenAI (or native) format with cost tracking, guardrails, load balancing, and logging [Bedrock, Azure, OpenAI, Anthropic, OpenAI, VertexAI, vLLM, Nvidia NIM]",
+      "stars": 55444,
+      "url": "https://github.com/BerriAI/litellm",
+      "language": "Python",
+      "topics": [
+        "ai-gateway",
+        "anthropic",
+        "azure-openai",
+        "bedrock",
+        "gateway",
+        "langchain",
+        "litellm",
+        "llm",
+        "llm-gateway",
+        "llmops",
+        "mcp-gateway",
+        "openai",
+        "openai-proxy",
+        "rust",
+        "rust-ai",
+        "vertex-ai"
+      ],
+      "createdAt": "2023-07-27T00:09:52Z",
+      "updatedAt": "2026-08-03T19:34:25Z",
+      "forks": 10289,
+      "openIssues": 4741
+    },
+    {
+      "name": "QuantumNous/new-api",
+      "description": "A unified AI model hub for aggregation & distribution. It supports cross-converting various LLMs into OpenAI-compatible, Claude-compatible, or Gemini-compatible formats. A centralized gateway for personal and enterprise model management. 🍥",
+      "stars": 44207,
+      "url": "https://github.com/QuantumNous/new-api",
+      "language": "Go",
+      "topics": [
+        "ai-gateway",
+        "claude",
+        "deepseek",
+        "gemini",
+        "newapi",
+        "openai",
+        "rerank"
+      ],
+      "createdAt": "2023-11-10T19:33:36Z",
+      "updatedAt": "2026-08-03T18:45:47Z",
+      "forks": 10396,
+      "openIssues": 1170
+    },
+    {
+      "name": "Kong/kong",
+      "description": "🦍 The API and AI Gateway",
+      "stars": 43909,
+      "url": "https://github.com/Kong/kong",
+      "language": "Lua",
+      "topics": [
+        "ai",
+        "ai-gateway",
+        "api-gateway",
+        "api-management",
+        "apis",
+        "artificial-intelligence",
+        "cloud-native",
+        "devops",
+        "kubernetes",
+        "kubernetes-ingress",
+        "kubernetes-ingress-controller",
+        "llm-gateway",
+        "llm-ops",
+        "mcp",
+        "mcp-gateway",
+        "microservice",
+        "microservices",
+        "openai-proxy",
+        "reverse-proxy",
+        "serverless"
+      ],
+      "createdAt": "2014-11-17T23:56:08Z",
+      "updatedAt": "2026-08-03T13:32:34Z",
+      "forks": 5195,
+      "openIssues": 186
+    },
+    {
+      "name": "diegosouzapw/OmniRoute",
+      "description": "Never stop coding. Free MIT AI gateway: one endpoint, 290+ providers (90+ free), 500+ models — Kimi, Claude, GPT, OpenAI, Gemini, GLM, DeepSeek, MiniMax. Works with Claude Code, Codex, Cursor, OpenCode, Cline & Copilot. Quota-aware auto-fallback, RTK+Caveman compression saves 15-95% tokens, MCP/A2A, Desktop/PWA. Built by 500+ contributors",
+      "stars": 38674,
+      "url": "https://github.com/diegosouzapw/OmniRoute",
+      "language": "TypeScript",
+      "topics": [
+        "a2a",
+        "ai-agents",
+        "ai-gateway",
+        "anthropic",
+        "claude",
+        "claude-code",
+        "cline",
+        "codex",
+        "copilot",
+        "cursor",
+        "deepseek",
+        "free-ai",
+        "gemini",
+        "kimi",
+        "llm-gateway",
+        "mcp",
+        "openai",
+        "openai-proxy",
+        "qwen",
+        "token-saver"
+      ],
+      "createdAt": "2026-02-13T12:38:31Z",
+      "updatedAt": "2026-08-03T19:37:29Z",
+      "forks": 5109,
+      "openIssues": 609
+    },
+    {
+      "name": "musistudio/claude-code-router",
+      "description": "One local control plane for every AI agent: route across models, fuse new capabilities, orchestrate tools, and stay fully in control.",
+      "stars": 36375,
+      "url": "https://github.com/musistudio/claude-code-router",
+      "language": "TypeScript",
+      "topics": [],
+      "createdAt": "2025-02-25T02:17:18Z",
+      "updatedAt": "2026-08-03T17:53:23Z",
+      "forks": 3047,
+      "openIssues": 1044
+    },
+    {
+      "name": "songquanpeng/one-api",
+      "description": "LLM API 管理 & 分发系统，支持 OpenAI、Azure、Anthropic Claude、Google Gemini、DeepSeek、字节豆包、ChatGLM、文心一言、讯飞星火、通义千问、360 智脑、腾讯混元等主流模型，统一 API 适配，可用于 key 管理与二次分发。单可执行文件，提供 Docker 镜像，一键部署，开箱即用。LLM API management & key redistribution system, unifying multiple providers under a single API. Single binary, Docker-ready, with an English UI.",
+      "stars": 36163,
+      "url": "https://github.com/songquanpeng/one-api",
+      "language": "JavaScript",
+      "topics": [
+        "api",
+        "api-gateway",
+        "azure-openai-api",
+        "chatgpt",
+        "claude",
+        "ernie-bot",
+        "gemini",
+        "gpt",
+        "openai",
+        "openai-api",
+        "proxy"
+      ],
+      "createdAt": "2023-04-22T12:39:24Z",
+      "updatedAt": "2026-08-03T15:38:16Z",
+      "forks": 6774,
+      "openIssues": 1028
+    },
+    {
+      "name": "assafelovic/gpt-researcher",
+      "description": "An autonomous agent that conducts deep research on any data using any LLM providers",
+      "stars": 28799,
+      "url": "https://github.com/assafelovic/gpt-researcher",
+      "language": "Python",
+      "topics": [
+        "agent",
+        "ai",
+        "automation",
+        "deepresearch",
+        "llms",
+        "mcp",
+        "mcp-server",
+        "python",
+        "research",
+        "search",
+        "webscraping"
+      ],
+      "createdAt": "2023-05-12T10:33:54Z",
+      "updatedAt": "2026-08-03T19:20:00Z",
+      "forks": 3886,
+      "openIssues": 162
+    },
+    {
+      "name": "decolua/9router",
+      "description": "Unlimited FREE AI coding. Connect Claude Code, Codex, Cursor, Cline, Copilot, Antigravity to FREE Claude/GPT/Gemini via 40+ providers. Auto-fallback, RTK -40% tokens, never hit limits.",
+      "stars": 24575,
+      "url": "https://github.com/decolua/9router",
+      "language": "JavaScript",
+      "topics": [
+        "ai-agents",
+        "ai-gateway",
+        "anthropic",
+        "chatgpt",
+        "claude",
+        "claude-code",
+        "cline",
+        "codex",
+        "copilot",
+        "cursor",
+        "deepseek",
+        "free-ai",
+        "gemini",
+        "gemini-cli",
+        "llm",
+        "llm-gateway",
+        "openai",
+        "openai-proxy",
+        "qwen",
+        "token-saver"
+      ],
+      "createdAt": "2026-01-05T02:59:30Z",
+      "updatedAt": "2026-08-03T19:25:07Z",
+      "forks": 4294,
+      "openIssues": 1444
+    },
+    {
+      "name": "tashfeenahmed/freellmapi",
+      "description": "OpenAI-compatible proxy that stacks the free tiers of 28 LLM providers (~4B tokens/month) behind one /v1 endpoint — plus any custom OpenAI-compatible endpoint. Smart routing, automatic failover, encrypted keys. Personal experimentation only.",
+      "stars": 17601,
+      "url": "https://github.com/tashfeenahmed/freellmapi",
+      "language": "TypeScript",
+      "topics": [],
+      "createdAt": "2026-04-21T13:38:59Z",
+      "updatedAt": "2026-08-03T19:34:48Z",
+      "forks": 2556,
+      "openIssues": 63
+    },
+    {
+      "name": "apache/apisix",
+      "description": "The Cloud-Native API Gateway and AI Gateway",
+      "stars": 16952,
+      "url": "https://github.com/apache/apisix",
+      "language": "Lua",
+      "topics": [
+        "ai-gateway",
+        "api",
+        "api-gateway",
+        "api-management",
+        "apisix",
+        "cloud-native",
+        "devops",
+        "iot",
+        "kubernetes",
+        "kubernetes-ingress",
+        "loadbalancing",
+        "luajit",
+        "microservices",
+        "nginx",
+        "reverse-proxy",
+        "serverless"
+      ],
+      "createdAt": "2019-04-10T02:02:05Z",
+      "updatedAt": "2026-08-03T13:50:30Z",
+      "forks": 2911,
+      "openIssues": 236
+    },
+    {
+      "name": "casdoor/casdoor",
+      "description": "An open-source Agent-first Identity and Access Management (IAM) /LLM MCP & agent gateway and auth server with web UI supporting OpenClaw, MCP, OAuth, OIDC, SAML, CAS, LDAP, SCIM, WebAuthn, TOTP, MFA, Face ID, Google Workspace, Azure AD",
+      "stars": 14116,
+      "url": "https://github.com/casdoor/casdoor",
+      "language": "Go",
+      "topics": [
+        "agent",
+        "agentic-ai",
+        "agi",
+        "ai-gateway",
+        "auth",
+        "authentication",
+        "iam",
+        "llm",
+        "mcp",
+        "mcp-gateway",
+        "mfa",
+        "oauth",
+        "oidc",
+        "openclaw",
+        "radius",
+        "saml",
+        "scim",
+        "single-sign-on",
+        "sso",
+        "webauthn"
+      ],
+      "createdAt": "2020-10-22T14:40:03Z",
+      "updatedAt": "2026-08-03T17:41:54Z",
+      "forks": 1763,
+      "openIssues": 99
+    },
+    {
+      "name": "langchain4j/langchain4j",
+      "description": "LangChain4j is an idiomatic, open-source Java library for building LLM-powered applications on the JVM. It offers a unified API over popular LLM providers and vector stores, and makes implementing tool calling (including MCP support), agents and RAG easy. It integrates seamlessly with enterprise Java frameworks like Quarkus and Spring Boot.",
+      "stars": 12769,
+      "url": "https://github.com/langchain4j/langchain4j",
+      "language": "Java",
+      "topics": [
+        "anthropic",
+        "chatgpt",
+        "chroma",
+        "embeddings",
+        "gemini",
+        "gpt",
+        "huggingface",
+        "java",
+        "langchain",
+        "llama",
+        "llm",
+        "llms",
+        "milvus",
+        "ollama",
+        "onnx",
+        "openai",
+        "openai-api",
+        "pgvector",
+        "pinecone",
+        "vector-database"
+      ],
+      "createdAt": "2023-06-20T15:30:29Z",
+      "updatedAt": "2026-08-03T14:52:21Z",
+      "forks": 2417,
+      "openIssues": 835
+    },
+    {
+      "name": "InsForge/InsForge",
+      "description": "The all-in-one, open-source backend platform for agentic coding. InsForge gives your coding agent database, auth, storage, compute, hosting, and AI gateway to ship full-stack apps end-to-end.",
+      "stars": 12640,
+      "url": "https://github.com/InsForge/InsForge",
+      "language": "TypeScript",
+      "topics": [
+        "ai",
+        "ai-agents",
+        "coding",
+        "deno",
+        "embeddings",
+        "insforge",
+        "nextjs",
+        "oauth2",
+        "pgvector",
+        "postgresql",
+        "realtime",
+        "vectors",
+        "websockets"
+      ],
+      "createdAt": "2025-07-29T05:56:00Z",
+      "updatedAt": "2026-08-03T18:50:09Z",
+      "forks": 1114,
+      "openIssues": 100
+    },
+    {
+      "name": "Portkey-AI/gateway",
+      "description": "A blazing fast AI Gateway with integrated guardrails. Route to 1,600+ LLMs, 50+ AI Guardrails with 1 fast & friendly API.",
+      "stars": 12634,
+      "url": "https://github.com/Portkey-AI/gateway",
+      "language": "TypeScript",
+      "topics": [
+        "ai-gateway",
+        "gateway",
+        "generative-ai",
+        "hacktoberfest",
+        "langchain",
+        "llm",
+        "llm-gateway",
+        "llmops",
+        "llms",
+        "mcp",
+        "mcp-client",
+        "mcp-gateway",
+        "mcp-servers",
+        "model-router",
+        "openai"
+      ],
+      "createdAt": "2023-08-23T11:52:47Z",
+      "updatedAt": "2026-08-03T15:55:56Z",
+      "forks": 1235,
+      "openIssues": 242
+    },
+    {
+      "name": "coaidev/coai",
+      "description": "🚀 Next Gen Multi-tenant AI One-Stop Solution. Builtin Admin & Billing System. Enterprise-Grade Unified LLM Gateway Support for 200+ Models And 35+ Providers, Load Balacing w/ Priority-base Routing, Cost Management, Chat Share, Cloud Sync, Credit/Subscription Billing, All File Parsing, Web Search, Built-in Model Cache.",
+      "stars": 9270,
+      "url": "https://github.com/coaidev/coai",
+      "language": "TypeScript",
+      "topics": [
+        "ai-gateway",
+        "api",
+        "chat",
+        "chatgpt",
+        "cross-platform",
+        "gemini",
+        "golang",
+        "llm-gateway",
+        "openai",
+        "proxy",
+        "react"
+      ],
+      "createdAt": "2023-07-17T18:09:57Z",
+      "updatedAt": "2026-08-03T12:59:28Z",
+      "forks": 1216,
+      "openIssues": 34
+    },
+    {
+      "name": "di-sukharev/opencommit",
+      "description": "top #1 and most feature rich GPT wrapper for git — generate commit messages with an LLM in 1 sec — works with Claude, GPT and every other provider, supports local Ollama models too",
+      "stars": 7509,
+      "url": "https://github.com/di-sukharev/opencommit",
+      "language": "JavaScript",
+      "topics": [
+        "ai",
+        "ai-commit",
+        "ai-commits",
+        "artificial-intelligence",
+        "chatgpt",
+        "git",
+        "gpt",
+        "productivity"
+      ],
+      "createdAt": "2023-03-06T10:30:51Z",
+      "updatedAt": "2026-08-03T14:31:57Z",
+      "forks": 439,
+      "openIssues": 197
+    },
+    {
+      "name": "maximhq/bifrost",
+      "description": "Fastest enterprise AI gateway (50x faster than LiteLLM) with adaptive load balancer, cluster mode, guardrails, 1000+ models support & <100 µs overhead at 5k RPS.",
+      "stars": 7013,
+      "url": "https://github.com/maximhq/bifrost",
+      "language": "Go",
+      "topics": [
+        "ai-gateway",
+        "gateway",
+        "gateway-services",
+        "generative-ai",
+        "guardrails",
+        "llm",
+        "llm-cost",
+        "llm-gateway",
+        "llm-observability",
+        "llmops",
+        "load-balancing",
+        "mcp-client",
+        "mcp-gateway",
+        "mcp-server",
+        "model-router",
+        "token-management"
+      ],
+      "createdAt": "2025-03-19T07:21:26Z",
+      "updatedAt": "2026-08-03T19:37:03Z",
+      "forks": 987,
+      "openIssues": 793
+    },
+    {
+      "name": "lidge-jun/opencodex",
+      "description": "Universal provider proxy for OpenAI Codex & Claude Code — use any LLM (Claude, Gemini, Grok, DeepSeek, Ollama…) with Codex CLI, App, SDK, and Claude Code",
+      "stars": 6930,
+      "url": "https://github.com/lidge-jun/opencodex",
+      "language": "TypeScript",
+      "topics": [
+        "ai-gateway",
+        "ai-tools",
+        "anthropic",
+        "chatgpt",
+        "claude",
+        "claude-code",
+        "codex",
+        "codex-cli",
+        "deepseek",
+        "developer-tools",
+        "gemini",
+        "grok",
+        "kiro",
+        "llm",
+        "llm-proxy",
+        "ollama",
+        "openai",
+        "openrouter",
+        "proxy",
+        "typescript"
+      ],
+      "createdAt": "2026-06-18T23:03:18Z",
+      "updatedAt": "2026-08-03T19:33:41Z",
+      "forks": 542,
+      "openIssues": 71
+    },
+    {
+      "name": "BlockRunAI/ClawRouter",
+      "description": "The agent-native LLM router for autonomous agents. 66 models (8 free), <1ms local routing, USDC payments on Base & Solana via x402.",
+      "stars": 6682,
+      "url": "https://github.com/BlockRunAI/ClawRouter",
+      "language": "TypeScript",
+      "topics": [
+        "ai",
+        "ai-agents",
+        "anthropic",
+        "cost-optimization",
+        "deepseek",
+        "gemini",
+        "llm",
+        "llm-router",
+        "micropayments",
+        "openai",
+        "openclaw",
+        "smart-routing",
+        "stablecoin-payment",
+        "stablecoin-payments",
+        "usdc",
+        "x402"
+      ],
+      "createdAt": "2026-02-03T17:32:00Z",
+      "updatedAt": "2026-08-03T11:46:32Z",
+      "forks": 633,
+      "openIssues": 8
+    },
+    {
+      "name": "rikkahub/rikkahub",
+      "description": "RikkaHub is an Android APP that supports for multiple LLM providers.",
+      "stars": 6594,
+      "url": "https://github.com/rikkahub/rikkahub",
+      "language": "Kotlin",
+      "topics": [
+        "agent",
+        "android",
+        "app",
+        "chatbot-ui",
+        "chatbox",
+        "chatgpt",
+        "deepseek",
+        "gemini",
+        "jetpack-compose",
+        "llm-ui",
+        "mcp",
+        "openrouter",
+        "web-ui"
+      ],
+      "createdAt": "2025-03-11T14:46:55Z",
+      "updatedAt": "2026-08-03T18:14:00Z",
+      "forks": 520,
+      "openIssues": 240
+    }
+  ],
+  "integrations": {
+    "openclaw-hermes": {
+      "status": "ready",
+      "protocol": "mcp",
+      "tasksQueued": 0
+    },
+    "litellm-ollama": {
+      "status": "healthy",
+      "fallbacksTriggered": 0
+    },
+    "ruflow-qdrant": {
+      "status": "initializing",
+      "collectionsCreated": 0
+    },
+    "n8n-orchestrator": {
+      "status": "ready",
+      "workflowsExecuted": 0
+    }
+  },
+  "memories": {
+    "userPreferences": {
+      "defaultTaskType": "coding",
+      "costOptimization": false,
+      "preferLocalModels": true
+    },
+    "patterns": {
+      "codeRefactoring": "openclaw + local-claude-code",
+      "jobMatching": "ruflow-backend",
+      "automation": "n8n",
+      "research": "sinkia-ops + local-reason"
+    },
+    "failureRecovery": {
+      "lastFailure": null,
+      "recoveryAttempts": 0,
+      "successfulRecoveries": 0
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "info",
+      "category": "optimization",
+      "message": "Sistema completamente unificado. Todos los servicios están listos para trabajar como una única pieza.",
+      "action": "monitor"
+    },
+    {
+      "priority": "info",
+      "category": "learning",
+      "message": "Los perfiles de modelos han sido optimizados para cada tipo de tarea. El sistema aprenderá y se mejorará automáticamente con el uso.",
+      "action": "observe"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2026-08-03T20:00:00Z",
+      "event": "Unified memory system initialized",
+      "details": "SynK-IA ecosystem unified configuration deployed. All services registered and ready for orchestration."
+    }
+  ],
+  "lastDiscoveryUpdate": "2026-08-03T19:41:15.122Z"
+}
