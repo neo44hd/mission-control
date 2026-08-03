@@ -239,6 +239,44 @@ services:
     description: "Admin panel for system monitoring and control"
     role: "system-management"
 
+  # Odysseus Master Orchestrator
+  odysseus:
+    name: "Odysseus"
+    type: "master-orchestrator"
+    port: 9999
+    protocol: "http"
+    host: "localhost"
+    baseUrl: "http://localhost:9999"
+    docker:
+      service: "sinkia-odysseus"
+      network: "synkia-os-net"
+      image: "odysseus-odysseus:latest"
+    critical: true
+    autoRestart: true
+    healthCheck: "/health"
+    description: "Master orchestrator for coordinating all SynK-IA services (Odysseus journey visualization)"
+    role: "master-orchestration"
+    capabilities:
+      - "service-coordination"
+      - "workflow-management"
+      - "dependency-resolution"
+      - "journey-visualization"
+      - "resource-allocation"
+    integratedServices:
+      - "sinkia-ops"
+      - "openclaw"
+      - "hub-ai-local"
+      - "ollama"
+      - "litellm"
+      - "openwebui"
+      - "n8n"
+      - "qdrant"
+      - "searxng"
+      - "ruflow-backend"
+      - "ruflow-frontend"
+      - "hermes"
+      - "mission-control"
+
 # ───────────────────────────────────────────────────────────────────────────────
 # MODEL SELECTION POLICY — Intelligent routing by task type
 # ───────────────────────────────────────────────────────────────────────────────

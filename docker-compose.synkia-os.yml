@@ -1,0 +1,162 @@
+# ════════════════════════════════════════════════════════════════════════════════
+# docker-compose.synkia-os.yml — OS Unificado de SynK-IA
+# ════════════════════════════════════════════════════════════════════════════════
+# 
+# Crea un "Operating System" Docker unificado que coordina:
+# - Todos los servicios en UNA SOLA RED (synkia-os-net)
+# - Sin dependencias estrictas que bloqueen arranques
+# - Reutiliza contenedores existentes cuando es posible
+#
+# Uso:
+#   docker compose -f docker-compose.synkia-os.yml up -d
+#
+
+version: '3.8'
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CORE — SynK-IA-Ops
+  # ═══════════════════════════════════════════════════════════════════════════
+  sinkia-api:
+    image: synk-ia-ops:latest
+    container_name: sinkia-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - DOCKER_CONTAINER=true
+    networks:
+      - synkia-os-net
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # VECTORES
+  # ═══════════════════════════════════════════════════════════════════════════
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: sinkia-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - synkia-os-net
+    # Sin healthcheck estricto — confía en curl interno
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # BÚSQUEDA
+  # ═══════════════════════════════════════════════════════════════════════════
+  searxng:
+    image: searxng/searxng:latest
+    container_name: sinkia-searxng
+    restart: unless-stopped
+    ports:
+      - "8888:8080"
+    environment:
+      - INSTANCE_NAME=SynK-IA Search
+    networks:
+      - synkia-os-net
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CHAT IA
+  # ═══════════════════════════════════════════════════════════════════════════
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: sinkia-openwebui
+    restart: unless-stopped
+    ports:
+      - "3030:8080"
+    volumes:
+      - openwebui_data:/app/backend/data
+    environment:
+      - OPENAI_API_BASE_URL=http://host.docker.internal:11434/v1
+      - OPENAI_API_KEY=ollama
+      - VECTOR_DB=qdrant
+      - QDRANT_URI=http://qdrant:6333
+    networks:
+      - synkia-os-net
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AUTOMATIZACIÓN
+  # ═══════════════════════════════════════════════════════════════════════════
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: sinkia-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678
+      - N8N_ENCRYPTION_KEY=sinkia-n8n-key-2026
+      - GENERIC_TIMEZONE=Europe/Madrid
+    networks:
+      - synkia-os-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ORCHESTRATION
+  # ═══════════════════════════════════════════════════════════════════════════
+  odysseus:
+    image: odysseus-odysseus:latest
+    container_name: sinkia-odysseus
+    restart: unless-stopped
+    ports:
+      - "9999:9999"
+    environment:
+      - PORT=9999
+      - NODE_ENV=production
+      - DOCKER_CONTAINER=true
+      - ORCHESTRATION_MODE=multi-service
+    networks:
+      - synkia-os-net
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:9999/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CONTROL
+  # ═══════════════════════════════════════════════════════════════════════════
+  openclaw-bridge:
+    image: busybox:1.35
+    container_name: sinkia-openclaw-bridge
+    restart: unless-stopped
+    networks:
+      - synkia-os-net
+    entrypoint: >
+      sh -c 'echo "🌉 OpenClaw Bridge to 18790" && sleep infinity'
+
+# ════════════════════════════════════════════════════════════════════════════════
+# VOLÚMENES PERSISTENTES
+# ════════════════════════════════════════════════════════════════════════════════
+volumes:
+  qdrant_data:
+  openwebui_data:
+  n8n_data:
+
+# ════════════════════════════════════════════════════════════════════════════════
+# RED UNIFICADA
+# ════════════════════════════════════════════════════════════════════════════════
+networks:
+  synkia-os-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
