@@ -193,16 +193,33 @@ services:
       start_period: 60s
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # CONTROL
+  # CONTROL & ORCHESTRATION — OpenClaw
   # ═══════════════════════════════════════════════════════════════════════════
-  openclaw-bridge:
-    image: busybox:1.35
-    container_name: sinkia-openclaw-bridge
+  openclaw:
+    image: openclaw-synkia:latest
+    container_name: sinkia-openclaw
     restart: unless-stopped
+    ports:
+      - "7999:7999"
+    volumes:
+      - openclaw_workspace:/workspace
+      - openclaw_skills:/skills
+      - openclaw_logs:/logs
+    environment:
+      - NODE_ENV=production
+      - PORT=7999
+      - LOG_LEVEL=info
+      - DOCKER_CONTAINER=true
+      - WORKSPACE_PATH=/workspace
+      - SKILLS_PATH=/skills
     networks:
       - synkia-os-net
-    entrypoint: >
-      sh -c 'echo "🌉 OpenClaw Bridge to 18790" && sleep infinity'
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:7999/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 # ════════════════════════════════════════════════════════════════════════════════
 # VOLÚMENES PERSISTENTES
@@ -211,6 +228,9 @@ volumes:
   qdrant_data:
   openwebui_data:
   n8n_data:
+  openclaw_workspace:
+  openclaw_skills:
+  openclaw_logs:
 
 # ════════════════════════════════════════════════════════════════════════════════
 # RED UNIFICADA
