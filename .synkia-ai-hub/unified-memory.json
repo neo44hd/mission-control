@@ -77,7 +77,7 @@
     {
       "name": "BerriAI/litellm",
       "description": "The fastest, litest AI Gateway. Rust core with Python SDK. Call 100+ LLM APIs in OpenAI (or native) format with cost tracking, guardrails, load balancing, and logging [Bedrock, Azure, OpenAI, Anthropic, OpenAI, VertexAI, vLLM, Nvidia NIM]",
-      "stars": 55444,
+      "stars": 55451,
       "url": "https://github.com/BerriAI/litellm",
       "language": "Python",
       "topics": [
@@ -99,9 +99,9 @@
         "vertex-ai"
       ],
       "createdAt": "2023-07-27T00:09:52Z",
-      "updatedAt": "2026-08-03T19:34:25Z",
-      "forks": 10289,
-      "openIssues": 4741
+      "updatedAt": "2026-08-03T23:37:38Z",
+      "forks": 10294,
+      "openIssues": 4753
     },
     {
       "name": "QuantumNous/new-api",
@@ -119,7 +119,7 @@
         "rerank"
       ],
       "createdAt": "2023-11-10T19:33:36Z",
-      "updatedAt": "2026-08-03T18:45:47Z",
+      "updatedAt": "2026-08-03T23:17:43Z",
       "forks": 10396,
       "openIssues": 1170
     },
@@ -159,7 +159,7 @@
     {
       "name": "diegosouzapw/OmniRoute",
       "description": "Never stop coding. Free MIT AI gateway: one endpoint, 290+ providers (90+ free), 500+ models — Kimi, Claude, GPT, OpenAI, Gemini, GLM, DeepSeek, MiniMax. Works with Claude Code, Codex, Cursor, OpenCode, Cline & Copilot. Quota-aware auto-fallback, RTK+Caveman compression saves 15-95% tokens, MCP/A2A, Desktop/PWA. Built by 500+ contributors",
-      "stars": 38674,
+      "stars": 38777,
       "url": "https://github.com/diegosouzapw/OmniRoute",
       "language": "TypeScript",
       "topics": [
@@ -185,21 +185,21 @@
         "token-saver"
       ],
       "createdAt": "2026-02-13T12:38:31Z",
-      "updatedAt": "2026-08-03T19:37:29Z",
-      "forks": 5109,
-      "openIssues": 609
+      "updatedAt": "2026-08-03T23:40:07Z",
+      "forks": 5123,
+      "openIssues": 598
     },
     {
       "name": "musistudio/claude-code-router",
       "description": "One local control plane for every AI agent: route across models, fuse new capabilities, orchestrate tools, and stay fully in control.",
-      "stars": 36375,
+      "stars": 36380,
       "url": "https://github.com/musistudio/claude-code-router",
       "language": "TypeScript",
       "topics": [],
       "createdAt": "2025-02-25T02:17:18Z",
-      "updatedAt": "2026-08-03T17:53:23Z",
+      "updatedAt": "2026-08-03T23:09:42Z",
       "forks": 3047,
-      "openIssues": 1044
+      "openIssues": 1046
     },
     {
       "name": "songquanpeng/one-api",
@@ -222,13 +222,13 @@
       ],
       "createdAt": "2023-04-22T12:39:24Z",
       "updatedAt": "2026-08-03T15:38:16Z",
-      "forks": 6774,
+      "forks": 6775,
       "openIssues": 1028
     },
     {
       "name": "assafelovic/gpt-researcher",
       "description": "An autonomous agent that conducts deep research on any data using any LLM providers",
-      "stars": 28799,
+      "stars": 28802,
       "url": "https://github.com/assafelovic/gpt-researcher",
       "language": "Python",
       "topics": [
@@ -245,14 +245,14 @@
         "webscraping"
       ],
       "createdAt": "2023-05-12T10:33:54Z",
-      "updatedAt": "2026-08-03T19:20:00Z",
-      "forks": 3886,
+      "updatedAt": "2026-08-03T20:48:21Z",
+      "forks": 3885,
       "openIssues": 162
     },
     {
       "name": "decolua/9router",
       "description": "Unlimited FREE AI coding. Connect Claude Code, Codex, Cursor, Cline, Copilot, Antigravity to FREE Claude/GPT/Gemini via 40+ providers. Auto-fallback, RTK -40% tokens, never hit limits.",
-      "stars": 24575,
+      "stars": 24579,
       "url": "https://github.com/decolua/9router",
       "language": "JavaScript",
       "topics": [
@@ -278,26 +278,26 @@
         "token-saver"
       ],
       "createdAt": "2026-01-05T02:59:30Z",
-      "updatedAt": "2026-08-03T19:25:07Z",
-      "forks": 4294,
+      "updatedAt": "2026-08-03T23:16:19Z",
+      "forks": 4298,
       "openIssues": 1444
     },
     {
       "name": "tashfeenahmed/freellmapi",
       "description": "OpenAI-compatible proxy that stacks the free tiers of 28 LLM providers (~4B tokens/month) behind one /v1 endpoint — plus any custom OpenAI-compatible endpoint. Smart routing, automatic failover, encrypted keys. Personal experimentation only.",
-      "stars": 17601,
+      "stars": 17603,
       "url": "https://github.com/tashfeenahmed/freellmapi",
       "language": "TypeScript",
       "topics": [],
       "createdAt": "2026-04-21T13:38:59Z",
-      "updatedAt": "2026-08-03T19:34:48Z",
+      "updatedAt": "2026-08-03T23:28:35Z",
       "forks": 2556,
-      "openIssues": 63
+      "openIssues": 59
     },
     {
       "name": "apache/apisix",
       "description": "The Cloud-Native API Gateway and AI Gateway",
-      "stars": 16952,
+      "stars": 16953,
       "url": "https://github.com/apache/apisix",
       "language": "Lua",
       "topics": [
@@ -319,7 +319,7 @@
         "serverless"
       ],
       "createdAt": "2019-04-10T02:02:05Z",
-      "updatedAt": "2026-08-03T13:50:30Z",
+      "updatedAt": "2026-08-03T20:25:44Z",
       "forks": 2911,
       "openIssues": 236
     },
@@ -359,7 +359,7 @@
     {
       "name": "langchain4j/langchain4j",
       "description": "LangChain4j is an idiomatic, open-source Java library for building LLM-powered applications on the JVM. It offers a unified API over popular LLM providers and vector stores, and makes implementing tool calling (including MCP support), agents and RAG easy. It integrates seamlessly with enterprise Java frameworks like Quarkus and Spring Boot.",
-      "stars": 12769,
+      "stars": 12770,
       "url": "https://github.com/langchain4j/langchain4j",
       "language": "Java",
       "topics": [
@@ -385,14 +385,14 @@
         "vector-database"
       ],
       "createdAt": "2023-06-20T15:30:29Z",
-      "updatedAt": "2026-08-03T14:52:21Z",
+      "updatedAt": "2026-08-03T21:52:09Z",
       "forks": 2417,
-      "openIssues": 835
+      "openIssues": 844
     },
     {
       "name": "InsForge/InsForge",
       "description": "The all-in-one, open-source backend platform for agentic coding. InsForge gives your coding agent database, auth, storage, compute, hosting, and AI gateway to ship full-stack apps end-to-end.",
-      "stars": 12640,
+      "stars": 12641,
       "url": "https://github.com/InsForge/InsForge",
       "language": "TypeScript",
       "topics": [
@@ -411,14 +411,14 @@
         "websockets"
       ],
       "createdAt": "2025-07-29T05:56:00Z",
-      "updatedAt": "2026-08-03T18:50:09Z",
-      "forks": 1114,
-      "openIssues": 100
+      "updatedAt": "2026-08-03T22:25:28Z",
+      "forks": 1113,
+      "openIssues": 103
     },
     {
       "name": "Portkey-AI/gateway",
       "description": "A blazing fast AI Gateway with integrated guardrails. Route to 1,600+ LLMs, 50+ AI Guardrails with 1 fast & friendly API.",
-      "stars": 12634,
+      "stars": 12635,
       "url": "https://github.com/Portkey-AI/gateway",
       "language": "TypeScript",
       "topics": [
@@ -439,7 +439,7 @@
         "openai"
       ],
       "createdAt": "2023-08-23T11:52:47Z",
-      "updatedAt": "2026-08-03T15:55:56Z",
+      "updatedAt": "2026-08-03T22:10:43Z",
       "forks": 1235,
       "openIssues": 242
     },
@@ -491,7 +491,7 @@
     {
       "name": "maximhq/bifrost",
       "description": "Fastest enterprise AI gateway (50x faster than LiteLLM) with adaptive load balancer, cluster mode, guardrails, 1000+ models support & <100 µs overhead at 5k RPS.",
-      "stars": 7013,
+      "stars": 7016,
       "url": "https://github.com/maximhq/bifrost",
       "language": "Go",
       "topics": [
@@ -513,14 +513,14 @@
         "token-management"
       ],
       "createdAt": "2025-03-19T07:21:26Z",
-      "updatedAt": "2026-08-03T19:37:03Z",
-      "forks": 987,
-      "openIssues": 793
+      "updatedAt": "2026-08-03T22:57:22Z",
+      "forks": 990,
+      "openIssues": 796
     },
     {
       "name": "lidge-jun/opencodex",
       "description": "Universal provider proxy for OpenAI Codex & Claude Code — use any LLM (Claude, Gemini, Grok, DeepSeek, Ollama…) with Codex CLI, App, SDK, and Claude Code",
-      "stars": 6930,
+      "stars": 6943,
       "url": "https://github.com/lidge-jun/opencodex",
       "language": "TypeScript",
       "topics": [
@@ -546,9 +546,9 @@
         "typescript"
       ],
       "createdAt": "2026-06-18T23:03:18Z",
-      "updatedAt": "2026-08-03T19:33:41Z",
-      "forks": 542,
-      "openIssues": 71
+      "updatedAt": "2026-08-03T23:39:21Z",
+      "forks": 545,
+      "openIssues": 77
     },
     {
       "name": "BlockRunAI/ClawRouter",
@@ -582,7 +582,7 @@
     {
       "name": "rikkahub/rikkahub",
       "description": "RikkaHub is an Android APP that supports for multiple LLM providers.",
-      "stars": 6594,
+      "stars": 6598,
       "url": "https://github.com/rikkahub/rikkahub",
       "language": "Kotlin",
       "topics": [
@@ -601,8 +601,8 @@
         "web-ui"
       ],
       "createdAt": "2025-03-11T14:46:55Z",
-      "updatedAt": "2026-08-03T18:14:00Z",
-      "forks": 520,
+      "updatedAt": "2026-08-03T23:14:05Z",
+      "forks": 521,
       "openIssues": 240
     }
   ],
@@ -664,5 +664,5 @@
       "details": "SynK-IA ecosystem unified configuration deployed. All services registered and ready for orchestration."
     }
   ],
-  "lastDiscoveryUpdate": "2026-08-03T19:41:15.122Z"
+  "lastDiscoveryUpdate": "2026-08-03T23:41:15.096Z"
 }
