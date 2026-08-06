@@ -11,8 +11,6 @@
 #   docker compose -f docker-compose.synkia-os.yml up -d
 #
 
-version: '3.8'
-
 services:
   # ═══════════════════════════════════════════════════════════════════════════
   # CORE — SynK-IA-Ops
@@ -30,12 +28,6 @@ services:
       - DOCKER_CONTAINER=true
     networks:
       - synkia-os-net
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:3001/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 120s
 
   # ═══════════════════════════════════════════════════════════════════════════
   # VECTORES
@@ -116,58 +108,40 @@ services:
     container_name: sinkia-heaven-hub
     restart: unless-stopped
     ports:
-      - "8765:8080"
+      - "8765:18791"
     environment:
-      - PORT=8080
+      - PORT=18791
       - NODE_ENV=production
       - DOCKER_CONTAINER=true
     networks:
       - synkia-os-net
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8765/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
   heaven-search:
     image: heaven-search-platform:latest
     container_name: sinkia-heaven-search
     restart: unless-stopped
     ports:
-      - "8766:8000"
+      - "8766:8012"
     environment:
-      - PORT=8000
+      - PORT=8012
       - NODE_ENV=production
       - DOCKER_CONTAINER=true
     networks:
       - synkia-os-net
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8766/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
   heaven-agent:
     image: heaven-ecosystem-agent:latest
     container_name: sinkia-heaven-agent
     restart: unless-stopped
     ports:
-      - "8767:9000"
+      - "8767:8009"
     environment:
-      - PORT=9000
+      - PORT=8009
       - NODE_ENV=production
       - DOCKER_CONTAINER=true
       - AGENT_MODE=autonomous
     networks:
       - synkia-os-net
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8767/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
   # ═══════════════════════════════════════════════════════════════════════════
   # ORCHESTRATION
@@ -185,12 +159,6 @@ services:
       - ORCHESTRATION_MODE=multi-service
     networks:
       - synkia-os-net
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:9999/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
   # ═══════════════════════════════════════════════════════════════════════════
   # CONTROL & ORCHESTRATION — OpenClaw
@@ -214,12 +182,6 @@ services:
       - SKILLS_PATH=/skills
     networks:
       - synkia-os-net
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:7999/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
 
 # ════════════════════════════════════════════════════════════════════════════════
 # VOLÚMENES PERSISTENTES

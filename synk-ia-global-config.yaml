@@ -54,7 +54,7 @@ services:
     host: "localhost"
     baseUrl: "http://localhost:7999"
     docker:
-      service: "openclaw-synkia"
+      service: "openclaw"
       network: "synkia-os-net"
     critical: true
     autoRestart: true
@@ -142,7 +142,7 @@ services:
     host: "localhost"
     baseUrl: "http://localhost:6333"
     docker:
-      service: "sinkia-qdrant"
+      service: "qdrant"
       network: "synkia-os-net"
     critical: true
     autoRestart: true
@@ -317,7 +317,7 @@ services:
     host: "localhost"
     baseUrl: "http://localhost:9999"
     docker:
-      service: "sinkia-odysseus"
+      service: "odysseus"
       network: "synkia-os-net"
       image: "odysseus-odysseus:latest"
     critical: true
