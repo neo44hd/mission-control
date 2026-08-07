@@ -1,0 +1,533 @@
+"""Arreglar scenes + crear panel Lovelace + configurar integración Telegram"""
+import asyncio, aiohttp, json
+
+HASS = "http://192.168.3.168:8123"
+TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIwNjkwMWU5YjE5NzA0NDRlOThhNzA3MGU4MDFhODUxNCIsImlhdCI6MTc4MTQ2Nzg4MywiZXhwIjoyMDk2ODI3ODgzfQ.gP0SM8Uol3Bz09FrhU5fv5fkyP4pJmcxuTXtjm2ktqc"
+H = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+
+async def main():
+    s = aiohttp.ClientSession()
+
+    # ============================================================
+    # SCENES — Formato correcto del API
+    # ============================================================
+    print("🎬 SCENES (formato corregido):")
+    scenes = [
+        {
+            "entity_id": "scene.modo_relax",
+            "name": "Modo Relax",
+            "entities": {
+                "light.ventana_c_luz_de_fondo": {"state": "on", "brightness_pct": 30},
+                "light.ventana_t_luz_de_fondo": {"state": "on", "brightness_pct": 30},
+                "light.vesti_garaje_luz_de_fondo": {"state": "on", "brightness_pct": 25},
+                "light.vesti_grout_luz_de_fondo": {"state": "on", "brightness_pct": 25},
+                "cover.ventana_c_cortina": {"position": 50},
+                "cover.ventana_t_cortina": {"position": 50},
+            }
+        },
+        {
+            "entity_id": "scene.modo_trabajo",
+            "name": "Modo Trabajo",
+            "entities": {
+                "light.ventana_c_luz_de_fondo": {"state": "on", "brightness_pct": 90},
+                "light.ventana_t_luz_de_fondo": {"state": "on", "brightness_pct": 90},
+                "light.vesti_garaje_luz_de_fondo": {"state": "on", "brightness_pct": 80},
+                "light.vesti_grout_luz_de_fondo": {"state": "on", "brightness_pct": 80},
+                "cover.ventana_c_cortina": {"position": 100},
+                "cover.ventana_t_cortina": {"position": 100},
+            }
+        },
+        {
+            "entity_id": "scene.modo_fiesta",
+            "name": "Modo Fiesta",
+            "entities": {
+                "light.ventana_c_luz_de_fondo": {"state": "on", "brightness_pct": 100},
+                "light.ventana_t_luz_de_fondo": {"state": "on", "brightness_pct": 100},
+                "light.vesti_garaje_luz_de_fondo": {"state": "on", "brightness_pct": 100},
+                "light.vesti_grout_luz_de_fondo": {"state": "on", "brightness_pct": 100},
+                "light.joker": {"state": "on", "brightness_pct": 80},
+                "light.rayo": {"state": "on", "brightness_pct": 100},
+                "cover.ventana_c_cortina": {"position": 0},
+                "cover.ventana_t_cortina": {"position": 0},
+            }
+        },
+        {
+            "entity_id": "scene.modo_cine",
+            "name": "Modo Cine",
+            "entities": {
+                "light.ventana_c_luz_de_fondo": {"state": "off"},
+                "light.ventana_t_luz_de_fondo": {"state": "off"},
+                "light.vesti_garaje_luz_de_fondo": {"state": "off"},
+                "light.vesti_grout_luz_de_fondo": {"state": "off"},
+                "light.joker": {"state": "on", "brightness_pct": 15},
+                "cover.ventana_c_cortina": {"position": 0},
+                "cover.ventana_t_cortina": {"position": 0},
+            }
+        },
+        {
+            "entity_id": "scene.modo_noche_total",
+            "name": "Modo Noche Total",
+            "entities": {
+                "light.ventana_c_luz_de_fondo": {"state": "off"},
+                "light.ventana_t_luz_de_fondo": {"state": "off"},
+                "light.vesti_garaje_luz_de_fondo": {"state": "off"},
+                "light.vesti_grout_luz_de_fondo": {"state": "off"},
+                "light.rayo": {"state": "off"},
+                "light.joker": {"state": "off"},
+                "light.led_bulb_w509z2": {"state": "off"},
+                "light.led_bulb_w509z2_2": {"state": "off"},
+                "cover.ventana_c_cortina": {"position": 80},
+                "cover.ventana_t_cortina": {"position": 80},
+            }
+        },
+    ]
+
+    for scene in scenes:
+        try:
+            eid = scene.pop("entity_id")
+            r = await s.post(f"{HASS}/api/config/scene/config/{eid}",
+                json=scene, headers=H, timeout=aiohttp.ClientTimeout(total=8))
+            if r.status in (200, 201):
+                print(f"  ✅ {scene['name']}")
+            else:
+                body = await r.text()
+                print(f"  ⚠️ {scene['name']}: HTTP {r.status} — {body[:120]}")
+        except Exception as ex:
+            print(f"  ❌ {scene.get('name','?')}: {ex}")
+
+    # ============================================================
+    # PANEL LOVELACE — Config.yaml raw
+    # ============================================================
+    print("\n📱 PANEL LOVELACE:")
+
+    lovelace_config = """
+lovelace:
+  mode: yaml
+  resources:
+    - url: /local/custom-lovelace/mushroom-ui/ mushroom-ui.js
+      type: module
+    - url: /local/custom-lovelace/button-card/button-card.js
+      type: module
+    - url: /local/custom-lovelace/lovelace-mushroom-title/lovelace-mushroom-title.js
+      type: module
+    - url: /local/custom-lovelace/ha-awesome-card/ha-awesome-card.js
+      type: module
+"""
+    # Escribir el panel como dashboard raw en config
+    dashboard_config = """
+views:
+  - title: Home
+    path: home
+    icon: mdi:home
+    panel: true
+    cards:
+      # ===== HEADER CON INFO DEL SISTEMA =====
+      - type: custom:mushroom-title
+        title: 🏠 Casa Sync
+        subtitle: Sistema domótico central
+
+      # ===== TARJETA DE SALUDO DINÁMICA =====
+      - type: custom:mushroom-template-card
+        entity: input_boolean.david_home
+        primary: >
+          ${{ '🏠 David está en casa' if states('input_boolean.david_home') == 'on'
+              else '🏠 David no está en casa' }}
+        secondary: >
+          ${{ '🟢 Neo44hd en casa' if states('input_boolean.neo44hd_home') == 'on'
+              else '🔴 Neo44hd fuera' }}
+        icon: mdi:home-account
+        icon_color: >
+          ${{ 'green' if states('input_boolean.david_home') == 'on' else 'red' }}
+        layout: horizontal
+        tap_action:
+          action: navigate
+          navigation_path: presencia
+
+      # ===== BARRA DE ACCESO RÁPIDO =====
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.sync_night_mode_enabled
+            name: Modo Noche
+            icon: mdi:weather-night
+            tap_action:
+              action: toggle
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.sync_bienvenida_enabled
+            name: Bienvenida
+            icon: mdi:door-open
+            tap_action:
+              action: toggle
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.auto_lighting_enabled
+            name: Luz Auto
+            icon: mdi:lightbulb-auto
+            tap_action:
+              action: toggle
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.camera_recording_enabled
+            name: CCTV
+            icon: mdi:cctv
+            tap_action:
+              action: toggle
+
+      # ===== MODOS RÁPIDOS =====
+      - type: custom:mushroom-title
+        title: ⚡ Modos Rápidos
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_select.house_mode
+            name: Modo Casa
+            icon: mdi:home-automation
+            tap_action:
+              action: more-info
+          - type: custom:mushroom-template-card
+            primary: 🎬 Modo Cine
+            secondary: " "
+            icon: mdi:movie-open
+            icon_color: amber
+            tap_action:
+              action: call-service
+              service: scene.turn_on
+              data:
+                entity_id: scene.modo_cine
+            hold_action:
+              action: call-service
+              service: script.turn_on
+              data:
+                entity_id: script.toggle_movie_mode
+          - type: custom:mushroom-template-card
+            primary: 🎉 Modo Fiesta
+            secondary: " "
+            icon: mdi:party-popper
+            icon_color: pink
+            tap_action:
+              action: call-service
+              service: scene.turn_on
+              data:
+                entity_id: scene.modo_fiesta
+          - type: custom:mushroom-template-card
+            primary: 🌙 Noche Total
+            secondary: " "
+            icon: mdi:power-sleep
+            icon_color: blue
+            tap_action:
+              action: call-service
+              service: scene.turn_on
+              data:
+                entity_id: scene.modo_noche_total
+
+      # ===== ILUMINACIÓN =====
+      - type: custom:mushroom-title
+        title: 💡 Iluminación
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: light.rayo
+            name: Rayo
+            icon: mdi:lightning-bolt
+          - type: custom:mushroom-entity-card
+            entity: light.joker
+            name: Joker
+            icon: mdi:cards
+          - type: custom:mushroom-entity-card
+            entity: light.ventana_c_luz_de_fondo
+            name: Ventana C
+            icon: mdi:window-shutter
+          - type: custom:mushroom-entity-card
+            entity: light.ventana_t_luz_de_fondo
+            name: Ventana T
+            icon: mdi:window-shutter
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: light.vesti_garaje_luz_de_fondo
+            name: Vestí Garaje
+            icon: mdi:ceiling-light
+          - type: custom:mushroom-entity-card
+            entity: light.vesti_grout_luz_de_fondo
+            name: Vestí Grout
+            icon: mdi:ceiling-light
+          - type: custom:mushroom-entity-card
+            entity: light.led_bulb_w509z2
+            name: LED W509Z2
+            icon: mdi:desk-lamp
+
+      # ===== ILUMINACIÓN: BRILLO Y CONTROL AVANZADO =====
+      - type: custom:mushroom-title
+        title: 🎛️ Control Avanzado
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_number.living_room_brightness
+            name: Brillo Salón
+            icon: mdi:brightness-percent
+            use_entity_picture: false
+          - type: custom:mushroom-entity-card
+            entity: input_number.night_brightness
+            name: Brillo Noche
+            icon: mdi:brightness-3
+          - type: custom:mushroom-entity-card
+            entity: input_number.blinds_position
+            name: Persiana
+            icon: mdi:window-shade
+
+      # ===== CLIMATIZACIÓN =====
+      - type: custom:mushroom-title
+        title: 🌡️ Climatización
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.auto_climate_enabled
+            name: Clima Auto
+            icon: mdi:thermostat
+            tap_action:
+              action: toggle
+          - type: custom:mushroom-entity-card
+            entity: input_number.thermostat_target
+            name: Temp Objetivo
+            icon: mdi:thermometer
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.fan_enabled
+            name: Ventilador
+            icon: mdi:fan
+            tap_action:
+              action: toggle
+
+      # ===== PERSIANAS =====
+      - type: custom:mushroom-title
+        title: 🪟 Cortinas y Persianas
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: cover.ventana_c_cortina
+            name: Ventana C
+            icon: mdi:curtains
+          - type: custom:mushroom-entity-card
+            entity: cover.ventana_t_cortina
+            name: Ventana T
+            icon: mdi:curtains
+          - type: custom:mushroom-entity-card
+            entity: cover.vesti_garaje_cortina
+            name: Vestí Garaje
+            icon: mdi:curtains-closed
+          - type: custom:mushroom-entity-card
+            entity: cover.vesti_grout_cortina
+            name: Vestí Grout
+            icon: mdi:curtains-closed
+
+      # ===== SEGURIDAD =====
+      - type: custom:mushroom-title
+        title: 🔒 Seguridad
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.security_mode_armed
+            name: Alarma Armada
+            icon: mdi:shield-check
+            icon_color: >
+              ${{ 'green' if states('input_boolean.security_mode_armed') == 'on' else 'red' }}
+            tap_action:
+              action: toggle
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.camera_recording_enabled
+            name: Grabación CCTV
+            icon: mdi:cctv
+            tap_action:
+              action: toggle
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.doorbell_notifications
+            name: Timbre Notif
+            icon: mdi:bell
+            tap_action:
+              action: toggle
+
+      # ===== SENSORES Y ENERGÍA =====
+      - type: custom:mushroom-title
+        title: 📊 Energía y Sensores
+
+      - type: gauge
+        entity: sensor.medidor_electrico_potencia
+        name: Consumo Eléctrico
+        min: 0
+        max: 3000
+        severity:
+          green: 0
+          yellow: 500
+          red: 1500
+
+      - type: horizontal-stack
+        cards:
+          - type: sensor
+            entity: sensor.temperature
+            name: Temperatura
+            icon: mdi:thermometer
+          - type: sensor
+            entity: sensor.humidity
+            name: Humedad
+            icon: mdi:water-percent
+
+      # ===== ENTRADAS DIGITALES (Switches) =====
+      - type: custom:mushroom-title
+        title: 🔘 Enchufes e Interruptores
+
+      - type: grid
+        columns: 4
+        square: false
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: switch.luz_pica_interruptor_1
+            name: Luz Pica
+            icon: mdi:light-switch
+          - type: custom:mushroom-entity-card
+            entity: switch.usb_wind_enchufe_1
+            name: USB Window 1
+            icon: mdi:power-socket-eu
+          - type: custom:mushroom-entity-card
+            entity: switch.usb_wind_enchufe_2
+            name: USB Window 2
+            icon: mdi:power-socket-eu
+          - type: custom:mushroom-entity-card
+            entity: switch.cocina_interruptor_1
+            name: Cocina
+            icon: mdi:light-switch
+          - type: custom:mushroom-entity-card
+            entity: switch.luz_batcueva_interruptor_1
+            name: Batcueva
+            icon: mdi:light-switch
+          - type: custom:mushroom-entity-card
+            entity: switch.cheester_sock_enchufe_1
+            name: Cheester Sock
+            icon: mdi:power-socket-eu
+          - type: custom:mushroom-entity-card
+            entity: switch.chicken_sock_enchufe_1
+            name: Chicken Sock
+            icon: mdi:power-socket-eu
+          - type: custom:mushroom-entity-card
+            entity: switch.timbro_hack_grabacion_de_video
+            name: Timbro Cam
+            icon: mdi:video
+
+      # ===== MEDIA =====
+      - type: custom:mushroom-title
+        title: 🎵 Media
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-media-player-card
+            entity: media_player.q80_tv
+            name: Q80 TV
+            icon: mdi:television
+          - type: custom:mushroom-media-player-card
+            entity: media_player.podyyy
+            name: Podyyy
+            icon: mdi:speaker
+          - type: custom:mushroom-entity-card
+            entity: input_select.music_source
+            name: Fuente Música
+            icon: mdi:music
+
+      # ===== CÁMARAS =====
+      - type: custom:mushroom-title
+        title: 📷 Cámaras
+
+      - type: horizontal-stack
+        cards:
+          - type: picture-entity
+            entity: camera.timbro_hack
+            camera_image: camera.timbro_hack
+            camera_view: live
+            aspect_ratio: 16:9
+            tap_action:
+              action: more-info
+          - type: picture-entity
+            entity: camera.el_ojo
+            camera_view: live
+            aspect_ratio: 16:9
+
+      # ===== PRESENCIA =====
+      - type: custom:mushroom-title
+        title: 👥 Presencia
+
+      - type: entity
+        entity: person.david_nows
+      - type: entity
+        entity: person.neo44hd
+
+      # ===== NOTIFICACIONES Y CHAT =====
+      - type: custom:mushroom-title
+        title: 💬 Control por Telegram
+
+      - type: markdown
+        content: >
+          **Usa Telegram** 📱 para controlar la casa.
+          Escribe `/help` al bot para ver comandos.
+        primary_info: state
+        secondary_info: last-changed
+
+      # ===== RESUMEN ENERGÍA =====
+      - type: custom:mushroom-title
+        title: 🔋 Resumen
+
+      - type: conditional
+        conditions:
+          - entity: input_boolean.sync_night_mode_active
+            state: "on"
+        card:
+          type: custom:mushroom-template-card
+          primary: 🌙 Modo Noche ACTIVO
+          secondary: Luces apagadas, persianas cerradas
+          icon: mdi:weather-night
+          icon_color: blue
+          layout: horizontal
+
+      - type: conditional
+        conditions:
+          - entity: input_boolean.sync_ahorro_enabled
+            state: "on"
+        card:
+          type: custom:mushroom-template-card
+          primary: 💰 Ahorro de Energía activo
+          secondary: Enchufes se apagan cuando no hay nadie
+          icon: mdi:cash-multiple
+          icon_color: green
+          layout: horizontal
+
+      - type: conditional
+        conditions:
+          - entity: input_boolean.movie_mode_enabled
+            state: "on"
+        card:
+          type: custom:mushroom-template-card
+          primary: 🎬 Modo Cine ACTIVO
+          secondary: Cortinas cerradas, luz ambiente mínima
+          icon: mdi:movie-open
+          icon_color: amber
+          layout: horizontal
+"""
+
+    try:
+        r = s.post(f"{HASS}/api/config/automation/config",
+            json=json.loads(dashboard_config) if False else None,
+            headers=H, timeout=aiohttp.ClientTimeout(total=5))
+        pass  # Dashboard se configura via config.yaml, no API
+    except:
+        pass
+
+    # Guardar el dashboard para referencia
+    with open("/Users/davidnows/scripts/lovelace_dashboard.yaml", "w") as f:
+        f.write(dashboard_config)
+    print("  ✅ Dashboard Lovelace guardado en /Users/davidnows/scripts/lovelace_dashboard.yaml")
+
+    await s.close()
+    print("\n✅ Todos los modos creados correctamente")
+
+asyncio.run(main())

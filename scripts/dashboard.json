@@ -1,0 +1,26 @@
+{
+  "title": "Casa Sync",
+  "icon": "mdi:home",
+  "panel": true,
+  "views": [
+    {
+      "title": "Inicio",
+      "path": "inicio",
+      "icon": "mdi:home",
+      "cards": [
+        {
+          "type": "custom:mushroom-title",
+          "title": "Casa Sync"
+        },
+        {
+          "type": "entity",
+          "entity": "input_boolean.sync_night_mode_enabled"
+        },
+        {
+          "type": "entity",
+          "entity": "input_boolean.sync_bienvenida_enabled"
+        }
+      ]
+    }
+  ]
+}

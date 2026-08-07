@@ -1,0 +1,16 @@
+[Unit]
+Description=BrainBot Telegram - Casa Sync
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /Users/davidnows/scripts/bot/brainbot.py
+Restart=always
+RestartSec=5
+Environment=TG_BOT_TOKEN=8773207493:AAEFjUuqDc558zRgH1UbZ8sAwU-ZGRlllcE
+WorkingDirectory=/Users/davidnows/scripts/bot
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

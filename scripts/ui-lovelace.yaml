@@ -1,0 +1,206 @@
+title: Casa Sync
+icon: mdi:home
+panel: true
+views:
+  - title: Inicio
+    path: inicio
+    icon: mdi:home
+    cards:
+      - type: custom:mushroom-title
+        title: "Casa Sync"
+        subtitle: "Sistema domotico centralizado"
+
+      - type: custom:mushroom-template-card
+        entity: input_boolean.david_home
+        primary: "David: ${{ states('input_boolean.david_home') }}"
+        secondary: "Neo44hd: ${{ states('input_boolean.neo44hd_home') }}"
+        icon: mdi:home-account
+        layout: horizontal
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.sync_night_mode_enabled
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.sync_bienvenida_enabled
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.camera_recording_enabled
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.auto_lighting_enabled
+
+      - type: custom:mushroom-title
+        title: "Modos"
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: "Cine"
+            icon: mdi:movie-open
+            icon_color: amber
+            tap_action:
+              action: call-service
+              service: script.sync_activar_cine
+          - type: custom:mushroom-template-card
+            primary: "Fiesta"
+            icon: mdi:party-popper
+            icon_color: pink
+            tap_action:
+              action: call-service
+              service: script.sync_activar_fiesta
+          - type: custom:mushroom-template-card
+            primary: "Noche"
+            icon: mdi:power-sleep
+            icon_color: blue
+            tap_action:
+              action: call-service
+              service: script.sync_activar_noche
+          - type: custom:mushroom-template-card
+            primary: "Despertar"
+            icon: mdi:white-balance-sunny
+            icon_color: orange
+            tap_action:
+              action: call-service
+              service: script.sync_desactivar_noche
+
+      - type: custom:mushroom-title
+        title: "Luces"
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: light.rayo
+          - type: custom:mushroom-entity-card
+            entity: light.joker
+          - type: custom:mushroom-entity-card
+            entity: light.ventana_c_luz_de_fondo
+          - type: custom:mushroom-entity-card
+            entity: light.ventana_t_luz_de_fondo
+          - type: custom:mushroom-entity-card
+            entity: light.led_bulb_w509z2
+
+      - type: custom:mushroom-title
+        title: "Control"
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_number.thermostat_target
+          - type: custom:mushroom-entity-card
+            entity: input_number.living_room_brightness
+          - type: custom:mushroom-entity-card
+            entity: input_number.blinds_position
+
+      - type: custom:mushroom-title
+        title: "Cortinas"
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: cover.ventana_c_cortina
+          - type: custom:mushroom-entity-card
+            entity: cover.ventana_t_cortina
+          - type: custom:mushroom-entity-card
+            entity: cover.vesti_garaje_cortina
+          - type: custom:mushroom-entity-card
+            entity: cover.vesti_grout_cortina
+
+      - type: custom:mushroom-title
+        title: "Seguridad"
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.security_mode_armed
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.doorbell_notifications
+
+      - type: custom:mushroom-title
+        title: "Energia"
+
+      - type: gauge
+        entity: sensor.medidor_electrico_potencia
+        name: Consumo Electrico
+        min: 0
+        max: 3000
+        severity:
+          green: 0
+          yellow: 500
+          red: 1500
+
+      - type: horizontal-stack
+        cards:
+          - type: sensor
+            entity: sensor.temperature
+          - type: sensor
+            entity: sensor.humidity
+
+      - type: custom:mushroom-title
+        title: "Enchufes"
+
+      - type: grid
+        columns: 4
+        square: false
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: switch.luz_pica_interruptor_1
+          - type: custom:mushroom-entity-card
+            entity: switch.usb_wind_enchufe_1
+          - type: custom:mushroom-entity-card
+            entity: switch.usb_wind_enchufe_2
+          - type: custom:mushroom-entity-card
+            entity: switch.cocina_interruptor_1
+          - type: custom:mushroom-entity-card
+            entity: switch.luz_batcueva_interruptor_1
+          - type: custom:mushroom-entity-card
+            entity: switch.cheester_sock_enchufe_1
+          - type: custom:mushroom-entity-card
+            entity: switch.chicken_sock_enchufe_1
+          - type: custom:mushroom-entity-card
+            entity: switch.timbro_hack_grabacion_de_video
+
+      - type: custom:mushroom-title
+        title: "Camara"
+
+      - type: horizontal-stack
+        cards:
+          - type: picture-entity
+            entity: camera.timbro_hack
+            camera_image: camera.timbro_hack
+            camera_view: live
+          - type: picture-entity
+            entity: camera.el_ojo
+            camera_view: live
+
+  - title: Presencia
+    path: presencia
+    icon: mdi:account-group
+    cards:
+      - type: custom:mushroom-title
+        title: "Presencia"
+      - type: entity
+        entity: person.david_nows
+      - type: entity
+        entity: person.neo44hd
+
+  - title: Telegram
+    path: telegram
+    icon: mdi:telegram
+    cards:
+      - type: custom:mushroom-title
+        title: "Control por Telegram"
+      - type: markdown
+        content: |
+          **Escribe al bot de Telegram para controlar la casa.**
+
+          /cine - Modo cine
+          /fiesta - Modo fiesta
+          /noche - Modo noche
+          /despertar - Desactivar noche
+          /luzon - Luces on
+          /luzoff - Luces off
+          /cortinas - Abrir cortinas
+          /cortinasc - Cerrar cortinas
+          /home - Estado casa
+          /seguridad - Toggle alarma
+          /clima - Temperatura
+          /energia - Consumo
