@@ -1,0 +1,167 @@
+#!/bin/bash
+# OpenClaw Services Startup Script
+# Inicia todos los servicios necesarios para el ecosistema OpenClaw
+
+set -e
+
+echo "╔════════════════════════════════════════════════════════════════╗"
+echo "║          🚀 OpenClaw Services Startup Script                  ║"
+echo "╚════════════════════════════════════════════════════════════════╝"
+echo ""
+
+# Colores para output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Track de servicios iniciados
+SERVICES_STARTED=()
+SERVICES_FAILED=()
+
+function start_service() {
+    local name=$1
+    local cmd=$2
+    local port=$3
+    local check_url=$4
+    
+    echo -e "${BLUE}[${name}]${NC} Iniciando en puerto $port..."
+    
+    # Intenta iniciar el servicio
+    if eval "$cmd" > /tmp/${name}.log 2>&1 &
+    then
+        sleep 2
+        # Verifica que está escuchando
+        if lsof -i :$port > /dev/null 2>&1
+        then
+            echo -e "${GREEN}✓${NC} ${name} iniciado correctamente"
+            SERVICES_STARTED+=("$name")
+            
+            # Intenta healthcheck si hay URL
+            if [ -n "$check_url" ]
+            then
+                sleep 1
+                if curl -s "$check_url" > /dev/null 2>&1
+                then
+                    echo -e "${GREEN}  ✓ Healthcheck OK${NC}"
+                else
+                    echo -e "${YELLOW}  ⚠ Healthcheck no responde aún${NC}"
+                fi
+            fi
+        else
+            echo -e "${RED}✗${NC} ${name} no está escuchando en puerto $port"
+            SERVICES_FAILED+=("$name")
+        fi
+    else
+        echo -e "${RED}✗${NC} Error iniciando ${name}"
+        SERVICES_FAILED+=("$name")
+    fi
+    echo ""
+}
+
+# 1. Hub Control Center (18791)
+start_service \
+    "Hub" \
+    "cd /Users/davidnows/.openclaw/hub && node server.js" \
+    "18791" \
+    "http://127.0.0.1:18791/"
+
+# 2. OpenClaw Gateway (18790)
+# Nota: Revisar si existe y necesita iniciarse
+if [ -d "/Users/davidnows/.openclaw/gateway" ]
+then
+    start_service \
+        "Gateway" \
+        "cd /Users/davidnows/.openclaw/gateway && npm start" \
+        "18790" \
+        "http://127.0.0.1:18790/health"
+else
+    echo -e "${YELLOW}⚠${NC} Gateway no encontrado en ~/.openclaw/gateway"
+fi
+
+# 3. Redis (6379) - probablemente ya está corriendo
+if lsof -i :6379 > /dev/null 2>&1
+then
+    echo -e "${GREEN}✓${NC} Redis ya está activo en puerto 6379"
+    SERVICES_STARTED+=("Redis")
+else
+    echo -e "${YELLOW}ℹ${NC} Redis no está activo (opcional)"
+fi
+
+# 4. PostgreSQL (5432) - probablemente ya está corriendo
+if lsof -i :5432 > /dev/null 2>&1
+then
+    echo -e "${GREEN}✓${NC} PostgreSQL ya está activo en puerto 5432"
+    SERVICES_STARTED+=("PostgreSQL")
+else
+    echo -e "${YELLOW}ℹ${NC} PostgreSQL no está activo (opcional)"
+fi
+
+# 5. Models API Centralizer (9502)
+if [ -f "/Users/davidnows/models-api-centralizer.js" ]
+then
+    start_service \
+        "Models API" \
+        "node /Users/davidnows/models-api-centralizer.js" \
+        "9502" \
+        "http://127.0.0.1:9502/health"
+else
+    echo -e "${YELLOW}ℹ${NC} Models API Centralizer no encontrado"
+fi
+
+# 6. Bots (opcional, usar con PM2 en producción)
+echo -e "${YELLOW}ℹ${NC} Bots:"
+echo "  Rexi:  python3 ~/.local/bin/rexi-listen"
+echo "  Diosa: python3 ~/.local/bin/diosa-bot"
+echo "  Velinda: node velinda-bot.js"
+echo ""
+
+# Resumen final
+echo "╔════════════════════════════════════════════════════════════════╗"
+echo "║                      📊 RESUMEN DE STARTUP                     ║"
+echo "╚════════════════════════════════════════════════════════════════╝"
+echo ""
+
+if [ ${#SERVICES_STARTED[@]} -gt 0 ]
+then
+    echo -e "${GREEN}Servicios iniciados (${#SERVICES_STARTED[@]}):${NC}"
+    for service in "${SERVICES_STARTED[@]}"
+    do
+        echo -e "  ${GREEN}✓${NC} $service"
+    done
+    echo ""
+fi
+
+if [ ${#SERVICES_FAILED[@]} -gt 0 ]
+then
+    echo -e "${RED}Servicios con error (${#SERVICES_FAILED[@]}):${NC}"
+    for service in "${SERVICES_FAILED[@]}"
+    do
+        echo -e "  ${RED}✗${NC} $service"
+    done
+    echo ""
+fi
+
+# Mostrar estado de puertos importantes
+echo -e "${BLUE}Estado de puertos:${NC}"
+for port in 18791 18790 9502 6379 5432
+do
+    if lsof -i :$port > /dev/null 2>&1
+    then
+        echo -e "  ${GREEN}✓${NC} :$port - Activo"
+    else
+        echo -e "  ${YELLOW}✗${NC} :$port - Inactivo"
+    fi
+done
+
+echo ""
+echo "🎯 Hub disponible en: http://127.0.0.1:18791/"
+echo ""
+echo "📝 Logs disponibles en: /tmp/{Hub,Gateway,Models-API}.log"
+echo ""
+echo "Para ver logs en vivo:"
+echo "  tail -f /tmp/Hub.log"
+echo "  tail -f /tmp/Gateway.log"
+echo "  tail -f /tmp/Models-API.log"
+echo ""
