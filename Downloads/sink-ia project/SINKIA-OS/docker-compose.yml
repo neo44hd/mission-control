@@ -1,0 +1,269 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SINKIA-OS — Docker Compose Unificado (v2.0)
+# Levanta TODO el ecosistema con un solo comando: docker compose up -d
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ============================================
+  # INFRAESTRUCTURA BASE
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: sinkia-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sinkia_os
+      POSTGRES_USER: sinkia
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sinkia_secret_2026}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sinkia"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: sinkia-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NOTA: el stack legacy ~/docker-compose.synkia-os.yml ya usa el nombre
+  # "sinkia-qdrant" y los puertos 6333/6334 del host. Usamos nombre y puertos
+  # propios para poder convivir con él. La DNS interna sigue siendo qdrant:6333.
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: sinkia-os-qdrant
+    restart: unless-stopped
+    ports:
+      - "6335:6333"
+      - "6336:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6333/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sinkia-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  # ============================================
+  # COMPONENTES DEL ECOSISTEMA
+  # ============================================
+
+  # ── Unified Dashboard (:3000) ───────────────────────────────────────────────
+  # Single pane of glass: Overview + ERP + HEAVEN + Remote + Memory + Models
+  unified-dashboard:
+    build:
+      context: ./components/unified-dashboard
+      dockerfile: Dockerfile
+    container_name: sinkia-dashboard
+    restart: unless-stopped
+    ports:
+      # 3000 lo publica sinkia-gui; el unified-dashboard usa 3004.
+      - "3004:3000"
+    depends_on:
+      heaven-platform:
+        condition: service_started
+      synkia-erp:
+        condition: service_started
+      remote-machine:
+        condition: service_started
+      models-centralizer:
+        condition: service_started
+      sinkmaind-memory:
+        condition: service_started
+
+  # ── HEAVEN Platform ────────────────────────────────────────────────────────
+  heaven-platform:
+    build:
+      context: ./components/heaven-platform
+      dockerfile: Dockerfile
+    container_name: sinkia-heaven
+    restart: unless-stopped
+    ports:
+      - "8009:8009"
+      - "8010:8010"
+      - "8012:8012"
+      - "8013:8013"
+    environment:
+      - CONFIG_DIR=/app/ecosystem-agent
+      - DATA_DIR=/app/data/ecosystem-data
+      - DATABASE_URL=postgresql://sinkia:${POSTGRES_PASSWORD:-sinkia_secret_2026}@postgres:5432/sinkia_os
+      - REDIS_URL=redis://redis:6379
+      - QDRANT_URL=http://qdrant:6333
+      - OLLAMA_URL=http://ollama:11434
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - heaven_data:/app/data
+      - heaven_logs:/app/logs
+
+  # ── SYNK-IA ERP/TPV ────────────────────────────────────────────────────────
+  synkia-erp:
+    build:
+      context: ./components/synkia-erp
+      dockerfile: Dockerfile
+    container_name: sinkia-erp
+    restart: unless-stopped
+    ports:
+      # 3001 del host lo ocupa sinkia-api (stack legacy) → publicamos en 3003.
+      - "3003:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://sinkia:${POSTGRES_PASSWORD:-sinkia_secret_2026}@postgres:5432/sinkia_os
+      - REDIS_URL=redis://redis:6379
+      - OLLAMA_URL=http://ollama:11434
+      - HEAVEN_AGENT_URL=http://heaven-platform:8009
+      - MODELS_CENTRALIZER_URL=http://models-centralizer:9502
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - erp_uploads:/app/uploads
+      - erp_data:/app/data
+
+  # ── Models API Centralizer ─────────────────────────────────────────────────
+  models-centralizer:
+    build:
+      context: ./components/models-centralizer
+      dockerfile: Dockerfile
+    container_name: sinkia-models-centralizer
+    restart: unless-stopped
+    ports:
+      - "9502:9502"
+    environment:
+      - PORT=9502
+      - OLLAMA_URL=http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_started
+
+  # ── Remote Machine Server ──────────────────────────────────────────────────
+  remote-machine:
+    build:
+      context: ./components/remote-machine
+      dockerfile: Dockerfile
+    container_name: sinkia-remote-machine
+    restart: unless-stopped
+    ports:
+      # 3333 del host lo ocupa un proceso node local → publicamos en 3334.
+      - "3334:3333"
+    environment:
+      - PORT=3333
+      - HEAVEN_AGENT_URL=http://heaven-platform:8009
+    depends_on:
+      heaven-platform:
+        condition: service_started
+    volumes:
+      - /Users/davidnows:/host-files:ro
+
+  # ── sinkMAIND Memory Engine ────────────────────────────────────────────────
+  sinkmaind-memory:
+    build:
+      context: ./components/sinkmaind-memory
+      dockerfile: Dockerfile
+    container_name: sinkia-memory
+    restart: unless-stopped
+    ports:
+      - "8020:8020"
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - CHROMA_PATH=/app/memory/chroma_db
+    depends_on:
+      ollama:
+        condition: service_started
+    volumes:
+      - memory_data:/app/memory
+      - memory_logs:/app/logs
+
+  # ── Sinkia GUI (:3000) ────────────────────────────────────────────────────
+  sinkia-gui:
+    build: ./components/sinkia-gui
+    container_name: sinkia-gui
+    ports:
+      - "3000:3000"
+    environment:
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - AI_MODEL=${AI_MODEL:-llama3.2}
+      - NEXT_PUBLIC_BASE_URL=http://localhost:3000
+      - SYNKIA_ERP_URL=http://synkia-erp:3001
+      - JARVIS_URL=http://jarvis:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - jarvis
+      - heaven-platform
+      - models-centralizer
+      - synkia-erp
+    restart: unless-stopped
+
+  # ── JARVIS Core (:8080) ─────────────────────────────────────────────────────
+  jarvis:
+    build:
+      context: ./components/jarvis-core
+      dockerfile: Dockerfile
+    container_name: sinkia-jarvis
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATABASE_URL=postgresql://sinkia:${POSTGRES_PASSWORD:-sinkia_secret_2026}@postgres:5432/sinkia_os
+      - REDIS_URL=redis://redis:6379
+      - QDRANT_URL=http://qdrant:6333
+      - OLLAMA_URL=http://ollama:11434
+      - AI_MODEL=${AI_MODEL:-llama3.2}
+      - DATA_DIR=/app/data/real
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    volumes:
+      - ./data/real:/app/data/real:ro
+      - jarvis_logs:/app/logs
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  ollama_data:
+  heaven_data:
+  heaven_logs:
+  erp_uploads:
+  erp_data:
+  memory_data:
+  memory_logs:
+  jarvis_logs:
+
+networks:
+  default:
+    name: sinkia-network

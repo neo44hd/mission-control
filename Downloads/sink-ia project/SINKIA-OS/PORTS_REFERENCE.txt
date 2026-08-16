@@ -1,0 +1,149 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                    SINKIA-OS — REFERENCIA RÁPIDA DE PUERTOS                  ║
+║                        Agosto 16, 2026 — OPERATIVO ✅                        ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ DASHBOARD & FRONTEND                                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ GUI (Sinkia)                    http://localhost:3000                       │
+│ HEAVEN Hub Dashboard            http://localhost:8010                       │
+│ HEAVEN Search API               http://localhost:8012                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ BACKEND APIS (Health Checks)                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ JARVIS Core                     http://localhost:8080/api/health            │
+│ HEAVEN Agent                    http://localhost:8009/health                │
+│ ERP/TPV System                  http://localhost:3003/api/health            │
+│ Ollama Models                   http://localhost:11434/api/tags             │
+│ Qdrant (Vector DB)              http://localhost:6335/healthz               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ BASES DE DATOS                                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PostgreSQL                      localhost:5432                              │
+│   Usuario: sinkia                                                           │
+│   Contraseña: sinkia_secret_2026                                           │
+│   BD: sinkia_os                                                             │
+│                                                                             │
+│ Redis                           localhost:6379                              │
+│                                                                             │
+│ Qdrant (legacy stack)           http://localhost:6333                       │
+│ Qdrant (SINKIA-OS)              http://localhost:6335                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ SERVICIOS INTERNOS (no acceso desde host)                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Models Centralizer              http://localhost:9502                       │
+│ Remote Machine                  http://localhost:3334                       │
+│ sinkMAIND Memory                http://localhost:8020 (sin implementar)     │
+│ Ollama LLM Server               http://localhost:11434                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                           MAPEO DE CONTENEDORES                              ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+sinkia-gui                  :3000  ←→ :3000     (Next.js)
+sinkia-jarvis               :8080  ←→ :8080     (JARVIS API)
+sinkia-heaven               :8009-13 ←→ :8009-13 (HEAVEN Platform)
+sinkia-erp                  :3003  ←→ :3001     (ERP/TPV)
+sinkia-models-centralizer   :9502  ←→ :9502     (Models)
+sinkia-remote-machine       :3334  ←→ :3333     (Remote access)
+sinkia-memory               :8020  ←→ :8020     (Memory, no impl.)
+sinkia-postgres             :5432  ←→ :5432     (PostgreSQL)
+sinkia-redis                :6379  ←→ :6379     (Redis)
+sinkia-os-qdrant            :6335  ←→ :6333     (Qdrant SINKIA-OS)
+sinkia-ollama               :11434 ←→ :11434    (Ollama)
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                         COMANDOS RÁPIDOS DE PRUEBA                           ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+# Verificar todo está UP
+./status.sh
+
+# Pruebas HTTP individuales
+curl http://localhost:3000                      # GUI
+curl http://localhost:8080/api/health          # JARVIS
+curl http://localhost:8009/health              # HEAVEN Agent
+curl http://localhost:3003/api/health          # ERP
+curl http://localhost:11434/api/tags           # Ollama
+curl http://localhost:6335/healthz             # Qdrant
+
+# Acceso a PostgreSQL
+psql -h localhost -U sinkia -d sinkia_os
+SELECT COUNT(*) FROM sales_daily;              # Debe retornar 170
+
+# Acceso a Redis
+redis-cli -h localhost
+PING                                            # Debe retornar PONG
+
+# Ver logs en tiempo real
+docker compose logs -f sinkia-heaven
+docker compose logs -f sinkia-erp
+docker compose logs -f sinkia-jarvis
+
+# Reiniciar un servicio
+docker compose restart sinkia-heaven
+
+# Detener todo (sin perder datos)
+./stop.sh
+
+# Iniciar todo
+./start-all.sh
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                        DIFERENCIAS RESPECTO A LEGACY                         ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+PUERTO LEGACY  → PUERTO SINKIA-OS  │  RAZÓN
+═══════════════════════════════════╪══════════════════════════════════════════
+3001 (sinkia-api)    → 3003 (ERP)  │ 3001 ocupado por stack legacy
+3333 (BrainCC)       → 3334 (Remote)│ 3333 ocupado por proceso local node
+6333 (Qdrant legacy) → 6335 (Qdrant)│ Coexistencia de dos stacks simultáneos
+         -           → 3000 (GUI)  │ Dashboard Next.js
+         -           → 8080 (JARVIS)│ API principal de orquestación
+         -           → 8009-13 (HEAVEN)│ Plataforma AI completa
+         -           → 9502 (Models)│ Proxy centralizado de modelos
+         -           → 11434 (Ollama)│ Servidor LLM local
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                         ESTADO DE SERVICIOS (16-AGO-2026)                   ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+✅ OPERATIVO
+├── GUI (Sinkia) - :3000
+├── JARVIS Core - :8080
+├── HEAVEN Platform - :8009-13
+├── ERP/TPV - :3003
+├── Models Centralizer - :9502
+├── PostgreSQL - :5432 (170 registros de ventas)
+├── Redis - :6379
+├── Qdrant SINKIA-OS - :6335
+└── Ollama - :11434
+
+⚠️  PROBLEMAS CONOCIDOS
+├── sinkMAIND Memory - Módulo src.api no existe (no implementado)
+└── Remote Machine - Sin endpoint health real (/api/machine/health → 404)
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                              PRÓXIMOS PASOS                                  ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+[ ] Implementar sinkMAIND Memory (búsqueda + embeddings con Chroma)
+[ ] Agregar endpoint health a Remote Machine
+[ ] Implementar Unified Dashboard totalmente funcional
+[ ] Migrar 14 servicios legacy de PM2 a Docker
+[ ] Configurar Kubernetes para scaling
+[ ] Multi-node replication de PostgreSQL
+
+═══════════════════════════════════════════════════════════════════════════════
+Última revisión: agosto 16, 2026
+Mantenedor: Oz (Agent)
+Estado del proyecto: OPERATIVO ✅
+═══════════════════════════════════════════════════════════════════════════════

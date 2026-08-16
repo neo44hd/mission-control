@@ -1,0 +1,41 @@
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# Async & Scheduling
+apscheduler==3.10.4
+httpx==0.25.0
+aiohttp==3.9.1
+
+# Monitoring & Metrics
+psutil==5.9.6
+prometheus-client==0.19.0
+
+# AIRLLM / torch / transformers / litellm: NO se instalan.
+# airllm==0.2.1 no existe en PyPI (versiones disponibles empiezan en 0.9.1) y
+# hacía fallar TODO el `pip install -r`, dejando la imagen sin fastapi.
+# Ninguno de estos paquetes se importa en el código actual.
+
+# Local Model Management: el cliente `ollama` no se importa en el código y su
+# versión pineada (0.1.15) no existe; además las versiones actuales exigen
+# httpx>=0.27, incompatible con el pin httpx==0.25.0. Se accede a Ollama vía
+# HTTP con httpx, así que no se instala.
+
+# Database & Storage
+sqlalchemy==2.0.23
+redis==5.0.1
+
+# Utilities
+pyyaml==6.0.1
+python-dotenv==1.0.0
+requests==2.31.0
+beautifulsoup4==4.12.2
+
+# Logging & Monitoring
+python-json-logger==2.0.7
+structlog==23.2.0
+
+# Testing / integraciones opcionales (pytest, grafana-api, PyGithub,
+# python-telegram-bot, mcp) se omiten: no se importan en runtime y sus pines
+# rompían la resolución de dependencias de la imagen.
